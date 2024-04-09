@@ -2,9 +2,12 @@ from ase.io import read as ase_read
 from pyscal3.operations.input import read_inputfile
 from pyscal3 import System
 from typing import Tuple, Dict, Optional
+import ase
 
 
-def read_crystal_structure_file(filename: str, format: Optional[str] = None) -> Tuple:
+def read_crystal_structure_file(
+    filename: str, format: Optional[str] = None
+) -> Tuple[ase.Atoms, System]:
     """
     Read a crystal file and return the pyscal atoms object
 
@@ -51,3 +54,23 @@ def get_crystal_structure_using_cna(pyscal_system: System) -> Dict[str, int]:
     cna_results = pyscal_system.analysis.common_neighbor_analysis()
 
     return dict(cna_results)
+
+
+def calculate_volume(crystal_structure: ase.Atoms) -> float:
+    """
+    Calculate the volume of the crystal structure
+
+    Parameters
+    ----------
+    crystal_structure : ase.Atoms
+        The crystal structure
+
+    Returns
+    -------
+    volume : float
+        The volume of the crystal structure
+    """
+
+    volume = crystal_structure.get_volume()
+
+    return float(volume)
