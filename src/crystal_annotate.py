@@ -1,9 +1,10 @@
 from ase.io import read as ase_read
 from pyscal3.operations.input import read_inputfile
 from pyscal3 import System
+from typing import Tuple, Dict, Optional
 
 
-def read_crystal_structure_file(filename, format=None):
+def read_crystal_structure_file(filename: str, format: Optional[str] = None) -> Tuple:
     """
     Read a crystal file and return the pyscal atoms object
 
@@ -32,7 +33,7 @@ def read_crystal_structure_file(filename, format=None):
     return crystal_structure, system
 
 
-def get_crystal_structure_using_cna(pyscal_system):
+def get_crystal_structure_using_cna(pyscal_system: System) -> Dict[str, int]:
     """
     Get the crystal structure using adaptive common neighbor analysis
 
@@ -49,4 +50,4 @@ def get_crystal_structure_using_cna(pyscal_system):
 
     cna_results = pyscal_system.analysis.common_neighbor_analysis()
 
-    return cna_results
+    return dict(cna_results)
