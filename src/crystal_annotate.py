@@ -7,8 +7,6 @@ from math import sqrt
 from rdflib import Literal, XSD, URIRef, Namespace
 
 CMSO = Namespace("http://purls.helmholtz-metadaten.de/cmso/")
-PLDO = Namespace("http://purls.helmholtz-metadaten.de/pldo/")
-PODO = Namespace("http://purls.helmholtz-metadaten.de/podo/")
 
 
 def read_crystal_structure_file(
