@@ -79,39 +79,42 @@ def calculate_volume(crystal_structure: ase.Atoms) -> float:
 
 
 def find_lattice_parameter(
-    crystal_structure: System, lattice_type: str
+    crystal_system: System, lattice_type: str
 ) -> Tuple[float, float, float]:
     """
-    Find the lattice parameter of the crystal structure
+    Calculate the lattice constants for a given
+    crystal structure and lattice type.
 
     Parameters
     ----------
-    crystal_structure : ase.Atoms
-        The crystal structure
+    crystal_system : pyscal_rdf.System
+        The crystal structure as a pyscal_rdf.System object.
+    lattice_type : str
+        The type of lattice ('fcc', 'bcc', 'hcp').
 
     Returns
     -------
-    lattice_constants : Tuple[float, float, float]
-        The lattice constant of the crystal structure
+    Tuple[float, float, float]
+        The lattice constants of the crystal structure.
+
+    Raises
+    ------
+    ValueError
+        If the lattice type is not supported.
     """
 
-    val, dist = crystal_structure.calculate.radial_distribution_function(bins=500)
+    val, dist = crystal_system.get_calculator().radial_distribution_function(bins=500)
     peaks, _ = find_peaks(val, height=0)
-    if lattice_type == "fcc":
-        lattice_parameter = dist[peaks[0]] * sqrt(2)
-        lattice_constants = (lattice_parameter, lattice_parameter, lattice_parameter)
-    elif lattice_type == "bcc":
-        lattice_parameter = dist[peaks[0]] * 2 / sqrt(3)
-        lattice_constants = (lattice_parameter, lattice_parameter, lattice_parameter)
-    elif lattice_type == "hcp":
-        lattice_parameter = dist[peaks[0]]
-        lattice_constants = (
-            lattice_parameter,
-            lattice_parameter,
-            lattice_parameter * 2 * sqrt(6) / 3,
-        )
-    else:
-        # return the error stating that the lattice type is not supported
-        raise ValueError("Lattice type not supported")
+
+    lattice_calculation = {
+        "fcc": lambda d: (d * sqrt(2),) * 3,
+        "bcc": lambda d: (d * 2 / sqrt(3),) * 3,
+        "hcp": lambda d: (d, d, d * 2 * sqrt(6) / 3),
+    }
+
+    if lattice_type not in lattice_calculation:
+        raise ValueError(f"Lattice type '{lattice_type}' not supported")
+
+    lattice_constants = lattice_calculation[lattice_type](dist[peaks[0]])
 
     return lattice_constants
