@@ -78,7 +78,9 @@ def calculate_volume(crystal_structure: ase.Atoms) -> float:
     return float(volume)
 
 
-def find_lattice_parameter(crystal_structure: System, lattice_type: str) -> float:
+def find_lattice_parameter(
+    crystal_structure: System, lattice_type: str
+) -> Tuple[float, float, float]:
     """
     Find the lattice parameter of the crystal structure
 
@@ -89,20 +91,27 @@ def find_lattice_parameter(crystal_structure: System, lattice_type: str) -> floa
 
     Returns
     -------
-    lattice_parameter : float
-        The lattice parameter of the crystal structure
+    lattice_constants : Tuple[float, float, float]
+        The lattice constant of the crystal structure
     """
 
-    val, dist = crystal_structure.calculate.radial_distribution_function()
+    val, dist = crystal_structure.calculate.radial_distribution_function(bins=500)
     peaks, _ = find_peaks(val, height=0)
     if lattice_type == "fcc":
         lattice_parameter = dist[peaks[0]] * sqrt(2)
+        lattice_constants = (lattice_parameter, lattice_parameter, lattice_parameter)
     elif lattice_type == "bcc":
-        lattice_parameter = dist[peaks[0]] * sqrt(3)
+        lattice_parameter = dist[peaks[0]] * 2 / sqrt(3)
+        lattice_constants = (lattice_parameter, lattice_parameter, lattice_parameter)
     elif lattice_type == "hcp":
-        lattice_parameter = dist[peaks[0]] * sqrt(2)
+        lattice_parameter = dist[peaks[0]]
+        lattice_constants = (
+            lattice_parameter,
+            lattice_parameter,
+            lattice_parameter * 2 * sqrt(6) / 3,
+        )
     else:
         # return the error stating that the lattice type is not supported
         raise ValueError("Lattice type not supported")
 
-    return float(lattice_parameter)
+    return lattice_constants
