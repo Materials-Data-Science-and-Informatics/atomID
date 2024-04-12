@@ -175,6 +175,50 @@ def add_lattice_angle(
         )
 
 
+def get_bravis_lattice_type(crystal_structure_type: str) -> str:
+    """
+    Get the Bravais lattice type of the crystal structure
+
+    Parameters
+    ----------
+    crystal_structure : ase.Atoms
+        The crystal structure
+
+    Returns
+    -------
+    lattice_type : str
+        The Bravais lattice type of the crystal structure
+    """
+    bravais_lattice = {
+        "fcc": "https://www.wikidata.org/wiki/Q3006714",
+        "bcc": "https://www.wikidata.org/wiki/Q851536",
+        "hcp": "https://www.wikidata.org/wiki/Q663314",
+    }
+    return bravais_lattice[crystal_structure_type]
+
+
+def get_space_group(crystal_number_type: str) -> Tuple[int, str]:
+    """
+    Get the space group number of the crystal structure
+
+    Parameters
+    ----------
+    crystal_structure_type : str
+        The crystal structure type
+
+    Returns
+    -------
+    lattice_type : str
+        The space group number of the crystal structure
+    """
+    space_group = {
+        "fcc": (225, "Fm-3m"),
+        "bcc": (229, "Im-3m"),
+        "hcp": (194, "P63/mmc"),
+    }
+    return space_group[crystal_number_type]
+
+
 def annotate_crystal_structure(data_file: str, format: str, output_file: str) -> None:
     """Annotate the crystal structure using pyscal and save the results to a knowledge graph
 
@@ -213,6 +257,29 @@ def annotate_crystal_structure(data_file: str, format: str, output_file: str) ->
         )
     )
     if crystal_type != "other":
+        space_group_number, space_group_symbol = get_space_group(crystal_type)
+        kg.graph.add(
+            (
+                URIRef(f"{system._name}_SpaceGroup"),
+                CMSO["hasSpaceGroupNumber"],
+                Literal(space_group_number),
+            )
+        )
+        kg.graph.add(
+            (
+                URIRef(f"{system._name}_SpaceGroup"),
+                CMSO["hasSpaceGroupSymbol"],
+                Literal(space_group_symbol, datatype=XSD.string),
+            )
+        )
+        bravice_lattice = get_bravis_lattice_type(crystal_type)
+        kg.graph.add(
+            (
+                URIRef(f"{system._name}_UnitCell"),
+                CMSO["hasBravaisLattice"],
+                URIRef(bravice_lattice),
+            )
+        )
         lattice_constants = find_lattice_parameter(system, crystal_type)
         lattice_angles = get_lattice_angle(crystal_type)
 
