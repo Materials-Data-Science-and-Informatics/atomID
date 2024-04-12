@@ -119,7 +119,8 @@ def find_lattice_parameter(
         raise ValueError(f"Lattice type '{lattice_type}' not supported")
 
     lattice_constants = lattice_calculation[lattice_type](dist[peaks[0]])
-
+    # Round to 3 decimal places
+    lattice_constants = tuple(round(lc, 3) for lc in lattice_constants)
     return lattice_constants
 
 
@@ -146,62 +147,81 @@ def get_lattice_angle(lattice_type: str) -> Tuple[float, float, float]:
     return lattice_angle[lattice_type]
 
 
-if __name__ == "__main__":
-    crystal_structure, system, kg = read_crystal_structure_file(
-        "/home/n.bhat/development/data/fcc/no_defects/Al/Al.cif", format="cif"
-    )
+def add_lattice_parameter(
+    graph: KnowledgeGraph, system_name: str, values: Tuple[float, float, float]
+) -> None:
+    properties = ["hasLength_x", "hasLength_y", "hasLength_z"]
+    for prop, value in zip(properties, values):
+        graph.add(
+            (
+                URIRef(f"{system_name}_LatticeParameter"),
+                CMSO[prop],
+                Literal(value, datatype=XSD.float),
+            )
+        )
+
+
+def add_lattice_angle(
+    graph: KnowledgeGraph, system_name: str, angles: Tuple[float, float, float]
+) -> None:
+    properties = ["hasAngle_alpha", "hasAngle_beta", "hasAngle_gamma"]
+    for prop, angle in zip(properties, angles):
+        graph.add(
+            (
+                URIRef(f"{system_name}_LatticeAngle"),
+                CMSO[prop],
+                Literal(angle, datatype=XSD.float),
+            )
+        )
+
+
+def annotate_crystal_structure(data_file: str, format: str, output_file: str) -> None:
+    """Annotate the crystal structure using pyscal and save the results to a knowledge graph
+
+    Parameters
+    ----------
+    data_file : str
+        The path to the crystal structure file
+    format : str
+        The format of the crystal structure file
+    output_file : str
+        The path to save the knowledge graph
+
+    Returns
+    -------
+    None"""
+    crystal_structure, system, kg = read_crystal_structure_file(data_file, format="cif")
     system.to_graph()
     cna_results = get_crystal_structure_using_cna(system)
     # Pick key with maximum value from cn_results
     crystal_type = max(cna_results, key=cna_results.__getitem__)
 
+    kg.graph.add(
+        (
+            URIRef(f"{system._name}_CrystalStructure"),
+            CMSO["hasAltName"],
+            Literal(crystal_type, datatype=XSD.string),
+        )
+    )
     volume = calculate_volume(crystal_structure)
+
+    kg.graph.add(
+        (
+            URIRef(f"{system._name}_SimulationCell"),
+            CMSO["hasVolume"],
+            Literal(volume, datatype=XSD.float),
+        )
+    )
     if crystal_type != "other":
         lattice_constants = find_lattice_parameter(system, crystal_type)
         lattice_angles = get_lattice_angle(crystal_type)
 
-        kg.graph.add(
-            (
-                URIRef(f"{system._name}_LatticeParameter"),
-                CMSO.hasLength_x,
-                Literal(lattice_constants[0], datatype=XSD.float),
-            )
-        )
-        kg.graph.add(
-            (
-                URIRef(f"{system._name}_LatticeParameter"),
-                CMSO.hasLength_y,
-                Literal(lattice_constants[1], datatype=XSD.float),
-            )
-        )
-        kg.graph.add(
-            (
-                URIRef(f"{system._name}_LatticeParameter"),
-                CMSO.hasLength_z,
-                Literal(lattice_constants[2], datatype=XSD.float),
-            )
-        )
+        add_lattice_parameter(kg.graph, system._name, lattice_constants)
+        add_lattice_angle(kg.graph, system._name, lattice_angles)
 
-        kg.graph.add(
-            (
-                URIRef(f"{system._name}_LatticeAngle"),
-                CMSO.hasAngle_alpha,
-                Literal(lattice_angles[0], datatype=XSD.float),
-            )
-        )
-        kg.graph.add(
-            (
-                URIRef(f"{system._name}_LatticeAngle"),
-                CMSO.hasAngle_beta,
-                Literal(lattice_angles[1], datatype=XSD.float),
-            )
-        )
-        kg.graph.add(
-            (
-                URIRef(f"{system._name}_LatticeAngle"),
-                CMSO.hasAngle_gamma,
-                Literal(lattice_angles[2], datatype=XSD.float),
-            )
-        )
+    kg.write(output_file, format="ttl")
 
-    kg.write("crystal_structure_test.ttl", format="ttl")
+
+if __name__ == "__main__":
+    data_file = "/Users/ninadbhat/hida/hida_data/fcc/no_defects/Al/Al.cif"
+    annotate_crystal_structure(data_file, "cif", "output.ttl")
