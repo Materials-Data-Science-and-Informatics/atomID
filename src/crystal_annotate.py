@@ -44,27 +44,73 @@ def read_crystal_structure_file(
 
 def get_crystal_structure_using_cna(pyscal_system: System) -> str:
     """
-    Get the crystal structure using adaptive common neighbor analysis
+    Get the crystal structure using adaptive common neighbour analysis.
 
     Parameters
     ----------
     pyscal_system : pyscal.System
-        The pyscal system object
+        The pyscal system object.
 
     Returns
     -------
-    crystal_type : str
-        The results of the adaptive common neighbor analysis
+    str
+        The identified crystal structure type.
     """
-
     cna_results = pyscal_system.analyze.common_neighbor_analysis()
+    logging.info("Adaptive common neighbour analysis results: %s", cna_results)
 
-    logging.info(f"Adaptive common neighbor analysis results: {cna_results}")
-    crystal_type = max(cna_results, key=cna_results.__getitem__)
+    # Find the most frequent crystal structure from CNA results.
+    crystal_type = max(cna_results, key=cna_results.get)
 
-    logging.info(f"Selecting crystal structure type: {crystal_type}")
+    if crystal_type == "others":
+        # Further analyse if the crystal type could be diamond related.
+        crystal_type = analyse_diamond_structures(pyscal_system)
 
+    logging.info("Selected crystal structure type: %s", crystal_type)
     return str(crystal_type)
+
+
+def analyse_diamond_structures(pyscal_system: System) -> str:
+    """
+    Analyse diamond structures and identify the dominant type if any.
+
+    Parameters
+    ----------
+    pyscal_system : pyscal.System
+        The pyscal system object.
+
+    Returns
+    -------
+    str
+        The dominant diamond structure type or 'others' if none found.
+    """
+    diamond_results = pyscal_system.analyze.diamond_structure()
+    logging.info("Initial diamond structure analysis results: %s", diamond_results)
+
+    # Aggregate the diamond structure counts.
+    diamond_results["cubic diamond"] = sum(
+        diamond_results.get(key, 0)
+        for key in ["cubic diamond", "cubic diamond 1NN", "cubic diamond 2NN"]
+    )
+    diamond_results["hex diamond"] = sum(
+        diamond_results.get(key, 0)
+        for key in ["hex diamond", "hex diamond 1NN", "hex diamond 2NN"]
+    )
+
+    # Clean up the dictionary.
+    for key in [
+        "cubic diamond 1NN",
+        "cubic diamond 2NN",
+        "hex diamond 1NN",
+        "hex diamond 2NN",
+    ]:
+        diamond_results.pop(key, None)
+
+    logging.info("Consolidated diamond structure analysis results: %s", diamond_results)
+
+    # Choose the most frequent diamond structure.
+    diamond_type = max(diamond_results, key=diamond_results.get, default="others")
+    return str(diamond_type)
 
 
 def calculate_volume(crystal_structure: ase.Atoms) -> float:
@@ -119,6 +165,7 @@ def find_lattice_parameter(
         "fcc": lambda d: (d * sqrt(2),) * 3,
         "bcc": lambda d: (d * 2 / sqrt(3),) * 3,
         "hcp": lambda d: (d, d, d * 2 * sqrt(6) / 3),
+        "cubic diamond": lambda d: (d * 4 / sqrt(3),) * 3,
     }
 
     if lattice_type not in lattice_calculation:
@@ -148,6 +195,7 @@ def get_lattice_angle(lattice_type: str) -> Tuple[float, float, float]:
         "fcc": (90, 90, 90),
         "bcc": (90, 90, 90),
         "hcp": (90, 90, 120),
+        "cubic diamond": (90, 90, 90),
     }
 
     return lattice_angle[lattice_type]
@@ -199,6 +247,7 @@ def get_bravis_lattice_type(crystal_structure_type: str) -> str:
         "fcc": "https://www.wikidata.org/wiki/Q3006714",
         "bcc": "https://www.wikidata.org/wiki/Q851536",
         "hcp": "https://www.wikidata.org/wiki/Q663314",
+        "cubic diamond": "https://www.wikidata.org/wiki/Q3006714",
     }
     return bravais_lattice[crystal_structure_type]
 
@@ -221,6 +270,7 @@ def get_space_group(crystal_number_type: str) -> Tuple[int, str]:
         "fcc": (225, "Fm-3m"),
         "bcc": (229, "Im-3m"),
         "hcp": (194, "P63/mmc"),
+        "cubic diamond": (227, "Fd-3m"),
     }
     return space_group[crystal_number_type]
 
@@ -252,16 +302,16 @@ def annotate_crystal_structure(data_file: str, format: str, output_file: str) ->
             Literal(crystal_type, datatype=XSD.string),
         )
     )
-    volume = calculate_volume(crystal_structure)
+    # volume = calculate_volume(crystal_structure)
 
-    kg.graph.add(
-        (
-            URIRef(f"{system._name}_SimulationCell"),
-            CMSO["hasVolume"],
-            Literal(volume, datatype=XSD.float),
-        )
-    )
-    if crystal_type != "other":
+    # kg.graph.add(
+    #     (
+    #         URIRef(f"{system._name}_SimulationCell"),
+    #         CMSO["hasVolume"],
+    #         Literal(volume, datatype=XSD.float),
+    #     )
+    # )
+    if crystal_type != "others":
         space_group_number, space_group_symbol = get_space_group(crystal_type)
         kg.graph.add(
             (
@@ -295,5 +345,5 @@ def annotate_crystal_structure(data_file: str, format: str, output_file: str) ->
 
 
 if __name__ == "__main__":
-    data_file = "/Users/ninadbhat/hida/hida_data/fcc/no_defects/Al/Al.cif"
+    data_file = "/Users/ninadbhat/hida/hida_data/diamond/no_defects/C/C.cif"
     annotate_crystal_structure(data_file, "cif", "output.ttl")
