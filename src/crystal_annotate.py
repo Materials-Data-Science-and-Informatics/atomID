@@ -1,10 +1,11 @@
 from ase.io import read as ase_read
 from pyscal_rdf import System, KnowledgeGraph
-from typing import Tuple, Dict, Optional
+from typing import Tuple, Optional
 import ase
 from scipy.signal import find_peaks
 from math import sqrt
 from rdflib import Literal, XSD, URIRef, Namespace
+import logging
 
 CMSO = Namespace("http://purls.helmholtz-metadaten.de/cmso/")
 
@@ -41,7 +42,7 @@ def read_crystal_structure_file(
     return crystal_structure, system, kg
 
 
-def get_crystal_structure_using_cna(pyscal_system: System) -> Dict[str, int]:
+def get_crystal_structure_using_cna(pyscal_system: System) -> str:
     """
     Get the crystal structure using adaptive common neighbor analysis
 
@@ -52,13 +53,18 @@ def get_crystal_structure_using_cna(pyscal_system: System) -> Dict[str, int]:
 
     Returns
     -------
-    cna_results : dict
-        The results of the common neighbor analysis
+    crystal_type : str
+        The results of the adaptive common neighbor analysis
     """
 
     cna_results = pyscal_system.analyze.common_neighbor_analysis()
 
-    return dict(cna_results)
+    logging.info(f"Adaptive common neighbor analysis results: {cna_results}")
+    crystal_type = max(cna_results, key=cna_results.__getitem__)
+
+    logging.info(f"Selecting crystal structure type: {crystal_type}")
+
+    return str(crystal_type)
 
 
 def calculate_volume(crystal_structure: ase.Atoms) -> float:
@@ -236,9 +242,8 @@ def annotate_crystal_structure(data_file: str, format: str, output_file: str) ->
     None"""
     crystal_structure, system, kg = read_crystal_structure_file(data_file, format="cif")
     system.to_graph()
-    cna_results = get_crystal_structure_using_cna(system)
-    # Pick key with maximum value from cn_results
-    crystal_type = max(cna_results, key=cna_results.__getitem__)
+
+    crystal_type = get_crystal_structure_using_cna(system)
 
     kg.graph.add(
         (
