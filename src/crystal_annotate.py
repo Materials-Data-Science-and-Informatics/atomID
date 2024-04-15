@@ -345,5 +345,4 @@ def annotate_crystal_structure(data_file: str, format: str, output_file: str) ->
 
 
 if __name__ == "__main__":
-    data_file = "/Users/ninadbhat/hida/hida_data/diamond/no_defects/C/C.cif"
-    annotate_crystal_structure(data_file, "cif", "output.ttl")
+    pass
