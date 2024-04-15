@@ -55,8 +55,18 @@ def analyze_defects(reference_positions: list, actual_positions: list) -> dict:
         for i, pos in enumerate(reference_positions)
         if usage_count[i] == 0
     ]
+    vacancy_count = len(vacancies)
+    vacancy_fraction = round(vacancy_count / len(actual_positions), 3)
     interstitials = [
         (i, tuple(pos)) for i, pos in enumerate(actual_positions) if usage_count[i] > 1
     ]
+    interstitial_count = len(interstitials)
+    interstitial_fraction = round(interstitial_count / len(actual_positions), 3)
 
-    return {"vacancies": vacancies, "interstitials": interstitials}
+    return {
+        "vacancies": {"count": vacancy_count, "fraction": vacancy_fraction},
+        "interstitials": {
+            "count": interstitial_count,
+            "fraction": interstitial_fraction,
+        },
+    }

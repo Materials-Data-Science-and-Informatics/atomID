@@ -4,15 +4,17 @@ from typing import Tuple, Optional
 import ase
 from scipy.signal import find_peaks
 from math import sqrt
-from rdflib import Literal, XSD, URIRef, Namespace
+from rdflib import Literal, XSD, URIRef, Namespace, RDF
+from point_defect_analysis.wigner_seitz_method import analyze_defects
 import logging
 
 CMSO = Namespace("http://purls.helmholtz-metadaten.de/cmso/")
+PODO = Namespace("http://purls.helmholtz-metadaten.de/podo/")
 
 
 def read_crystal_structure_file(
     filename: str, format: Optional[str] = None
-) -> Tuple[ase.Atoms, System, KnowledgeGraph]:
+) -> Tuple[System, KnowledgeGraph]:
     """
     Read a crystal file and return the pyscal atoms object
 
@@ -39,7 +41,7 @@ def read_crystal_structure_file(
     # Convert to pyscal atoms object
     system = System(filename=crystal_structure, format="ase", graph=kg)
 
-    return crystal_structure, system, kg
+    return system, kg
 
 
 def get_crystal_structure_using_cna(pyscal_system: System) -> str:
@@ -275,6 +277,89 @@ def get_space_group(crystal_number_type: str) -> Tuple[int, str]:
     return space_group[crystal_number_type]
 
 
+def annotate_defects(
+    input_turtle_file: str, reference_data_file: str, output_file: str
+) -> None:
+    kg = KnowledgeGraph(graph_file=input_turtle_file)
+    sample = kg.samples[0]
+    system_name = str(sample)
+    system = kg.get_system_from_sample(sample)
+
+    actual_positions = system.atoms.positions
+
+    ref_system, _ = read_crystal_structure_file(reference_data_file, format="cif")
+    ref_positions = ref_system.atoms.positions
+
+    defects = analyze_defects(
+        reference_positions=ref_positions, actual_positions=actual_positions
+    )
+
+    vacancies = defects["vacancies"]
+    interstitials = defects["interstitials"]
+
+    if vacancies["count"] > 0:
+        kg.graph.add(
+            (
+                URIRef(f"{system_name}_Material"),
+                CMSO["hasDefect"],
+                URIRef(f"{system_name}_Vacancy"),
+            )
+        )
+        kg.graph.add(
+            (
+                URIRef(f"{system_name}_SimulationCell"),
+                CMSO["hasDefectCount"],
+                Literal(vacancies["count"], datatype=XSD.integer),
+            )
+        )
+        kg.graph.add(
+            (
+                URIRef(f"{system_name}_SimulationCell"),
+                CMSO["hasVacancyConcentration"],
+                Literal(vacancies["fraction"], datatype=XSD.float),
+            )
+        )
+        kg.graph.add(
+            (
+                URIRef(f"{system_name}_Vacancy"),
+                RDF.type,
+                PODO["Vacancy"],
+            )
+        )
+
+    if interstitials["count"] > 0:
+        kg.graph.add(
+            (
+                URIRef(f"{system_name}_Material"),
+                CMSO["hasDefect"],
+                URIRef(f"{system_name}_Interstitial"),
+            )
+        )
+        kg.graph.add(
+            (
+                URIRef(f"{system_name}_SimulationCell"),
+                CMSO["hasInterstitialCount"],
+                Literal(interstitials["count"], datatype=XSD.integer),
+            )
+        )
+        kg.graph.add(
+            (
+                URIRef(f"{system_name}_SimulationCell"),
+                CMSO["hasInterstitialConcentration"],
+                Literal(interstitials["fraction"], datatype=XSD.float),
+            )
+        )
+        kg.graph.add(
+            (
+                URIRef(f"{system_name}_Interstitial"),
+                RDF.type,
+                PODO["Interstitial"],
+            )
+        )
+
+    kg.write(output_file, format="ttl")
+
+
 def annotate_crystal_structure(data_file: str, format: str, output_file: str) -> None:
     """Annotate the crystal structure using pyscal and save the results to a knowledge graph
 
@@ -290,7 +375,7 @@ def annotate_crystal_structure(data_file: str, format: str, output_file: str) ->
     Returns
     -------
     None"""
-    crystal_structure, system, kg = read_crystal_structure_file(data_file, format="cif")
+    system, kg = read_crystal_structure_file(data_file, format="cif")
     system.to_graph()
 
     crystal_type = get_crystal_structure_using_cna(system)
@@ -302,15 +387,7 @@ def annotate_crystal_structure(data_file: str, format: str, output_file: str) ->
             Literal(crystal_type, datatype=XSD.string),
         )
     )
-    # volume = calculate_volume(crystal_structure)
 
-    # kg.graph.add(
-    #     (
-    #         URIRef(f"{system._name}_SimulationCell"),
-    #         CMSO["hasVolume"],
-    #         Literal(volume, datatype=XSD.float),
-    #     )
-    # )
     if crystal_type != "others":
         space_group_number, space_group_symbol = get_space_group(crystal_type)
         kg.graph.add(
@@ -345,4 +422,11 @@ def annotate_crystal_structure(data_file: str, format: str, output_file: str) ->
 
 
 if __name__ == "__main__":
-    pass
+    file_path = "/home/n.bhat/development/data/hcp/vacancies/Mg/Mg_vacancies.cif"
+    annotate_crystal_structure(file_path, "cif", "output.ttl")
+
+    annotate_defects(
+        "output.ttl",
+        "/home/n.bhat/development/data/hcp/no_defects/Mg/Mg.cif",
+        "defout.ttl",
+    )
