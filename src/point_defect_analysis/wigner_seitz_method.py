@@ -64,8 +64,8 @@ def analyze_defects(reference_positions: list, actual_positions: list) -> dict:
     interstitial_fraction = round(interstitial_count / len(actual_positions), 3)
 
     return {
-        "vacancies": {"count": vacancy_count, "fraction": vacancy_fraction},
-        "interstitials": {
+        "Vacancies": {"count": vacancy_count, "fraction": vacancy_fraction},
+        "Interstitials": {
             "count": interstitial_count,
             "fraction": interstitial_fraction,
         },

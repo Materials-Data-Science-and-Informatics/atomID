@@ -277,85 +277,53 @@ def get_space_group(crystal_number_type: str) -> Tuple[int, str]:
     return space_group[crystal_number_type]
 
 
+def add_defects_to_graph(kg: KnowledgeGraph, system_name: str, defects: dict) -> None:
+    """Add defect data to the knowledge graph"""
+    for defect_type, defect_info in defects.items():
+        if defect_info["count"] > 0:
+            kg.graph.add(
+                (
+                    URIRef(f"{system_name}_Material"),
+                    CMSO["hasDefect"],
+                    URIRef(f"{system_name}_{defect_type}"),
+                )
+            )
+            kg.graph.add(
+                (
+                    URIRef(f"{system_name}_SimulationCell"),
+                    CMSO[f"has{defect_type}Count"],
+                    Literal(defect_info["count"], datatype=XSD.integer),
+                )
+            )
+            kg.graph.add(
+                (
+                    URIRef(f"{system_name}_SimulationCell"),
+                    CMSO[f"has{defect_type}Concentration"],
+                    Literal(defect_info["fraction"], datatype=XSD.float),
+                )
+            )
+            kg.graph.add(
+                (URIRef(f"{system_name}_{defect_type}"), RDF.type, PODO[defect_type])
+            )
+
+
 def annotate_defects(
     input_turtle_file: str, reference_data_file: str, output_file: str
 ) -> None:
+    """Annotates defects in the material sample described in the input turtle file using the reference data file."""
     kg = KnowledgeGraph(graph_file=input_turtle_file)
     sample = kg.samples[0]
     system_name = str(sample)
     system = kg.get_system_from_sample(sample)
 
     actual_positions = system.atoms.positions
-
     ref_system, _ = read_crystal_structure_file(reference_data_file, format="cif")
     ref_positions = ref_system.atoms.positions
 
     defects = analyze_defects(
         reference_positions=ref_positions, actual_positions=actual_positions
     )
-
-    vacancies = defects["vacancies"]
-    interstitials = defects["interstitials"]
-
-    if vacancies["count"] > 0:
-        kg.graph.add(
-            (
-                URIRef(f"{system_name}_Material"),
-                CMSO["hasDefect"],
-                URIRef(f"{system_name}_Vacancy"),
-            )
-        )
-        kg.graph.add(
-            (
-                URIRef(f"{system_name}_SimulationCell"),
-                CMSO["hasDefectCount"],
-                Literal(vacancies["count"], datatype=XSD.integer),
-            )
-        )
-        kg.graph.add(
-            (
-                URIRef(f"{system_name}_SimulationCell"),
-                CMSO["hasVacancyConcentration"],
-                Literal(vacancies["fraction"], datatype=XSD.float),
-            )
-        )
-        kg.graph.add(
-            (
-                URIRef(f"{system_name}_Vacancy"),
-                RDF.type,
-                PODO["Vacancy"],
-            )
-        )
-
-    if interstitials["count"] > 0:
-        kg.graph.add(
-            (
-                URIRef(f"{system_name}_Material"),
-                CMSO["hasDefect"],
-                URIRef(f"{system_name}_Interstitial"),
-            )
-        )
-        kg.graph.add(
-            (
-                URIRef(f"{system_name}_SimulationCell"),
-                CMSO["hasInterstitialCount"],
-                Literal(interstitials["count"], datatype=XSD.integer),
-            )
-        )
-        kg.graph.add(
-            (
-                URIRef(f"{system_name}_SimulationCell"),
-                CMSO["hasInterstitialConcentration"],
-                Literal(interstitials["fraction"], datatype=XSD.float),
-            )
-        )
-        kg.graph.add(
-            (
-                URIRef(f"{system_name}_Interstitial"),
-                RDF.type,
-                PODO["Interstitial"],
-            )
-        )
+    add_defects_to_graph(kg, system_name, defects)
 
     kg.write(output_file, format="ttl")
 
@@ -419,14 +387,3 @@ def annotate_crystal_structure(data_file: str, format: str, output_file: str) ->
         add_lattice_angle(kg.graph, system._name, lattice_angles)
 
     kg.write(output_file, format="ttl")
-
-
-if __name__ == "__main__":
-    file_path = "/home/n.bhat/development/data/hcp/vacancies/Mg/Mg_vacancies.cif"
-    annotate_crystal_structure(file_path, "cif", "output.ttl")
-
-    annotate_defects(
-        "output.ttl",
-        "/home/n.bhat/development/data/hcp/no_defects/Mg/Mg.cif",
-        "defout.ttl",
-    )
