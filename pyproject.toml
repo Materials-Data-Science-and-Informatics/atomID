@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "crystal-annotate"
+name = "atomID"
 version = "0.1.0"
-description = "Python package to annotate crystal structure data files"
+description = "Python package to identify and annotate crystal structure data files"
 authors = ["Ninad Bhat"]
 readme = "README.md"
 
