@@ -21,6 +21,29 @@ docs = ["pillow", "sphinx", "sphinx-rtd-theme"]
 test = ["pytest (>=5.0.0)", "pytest-mock (>=3.3.0)", "pytest-xdist (>=1.30.0)"]
 
 [[package]]
+name = "atomrdf"
+version = "0.4.4"
+description = "Ontology based structural manipulation and quering"
+optional = false
+python-versions = "*"
+files = [
+    {file = "atomrdf-0.4.4-py3-none-any.whl", hash = "sha256:c01d449e6b2285bb7c98ba00889f7e5c5505547cd2522530ccade768d9f30559"},
+    {file = "atomrdf-0.4.4.tar.gz", hash = "sha256:2c148a79b825e57187e0c6d67d8c2be8f6eb95f037e0ed9562f728df16b750f4"},
+]
+
+[package.dependencies]
+ase = "*"
+graphviz = "*"
+networkx = "*"
+numpy = "*"
+owlready2 = "*"
+pandas = "*"
+pyscal3 = "*"
+pyyaml = "*"
+rdflib = "*"
+spglib = "*"
+
+[[package]]
 name = "cfgv"
 version = "3.4.0"
 description = "Validate configuration and produce human readable error messages."
@@ -803,29 +826,6 @@ files = [
 diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
-name = "pyscal-rdf"
-version = "0.2.5"
-description = "Ontology based structural manipulation and quering"
-optional = false
-python-versions = "*"
-files = [
-    {file = "pyscal_rdf-0.2.5-py3-none-any.whl", hash = "sha256:2d9ccfaacfa8497bc7cdcba16a1d481e2d48224d8c4a6e040252a074ff2b864d"},
-    {file = "pyscal_rdf-0.2.5.tar.gz", hash = "sha256:e33159ff66468a048edd29a62c245e57d77c330fb16dcfd70b9e80298f48bb84"},
-]
-
-[package.dependencies]
-ase = "*"
-graphviz = "*"
-networkx = "*"
-numpy = "*"
-owlready2 = "*"
-pandas = "*"
-pyscal3 = "*"
-pyyaml = "*"
-rdflib = "*"
-spglib = "*"
-
-[[package]]
 name = "pyscal3"
 version = "3.1.12"
 description = "Python library written in C++ for calculation of local atomic structural environment"
@@ -1191,4 +1191,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "089862b143f272f5058bb3ebadec1a8e911448da8020ad73fabdfeeeb3c98ed6"
+content-hash = "7f98ae3f90bedfa8d4aa064385e907908a576a5e179e10b2fee5aa16dc0b1c8c"

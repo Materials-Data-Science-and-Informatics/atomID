@@ -1,5 +1,5 @@
 from ase.io import read as ase_read
-from pyscal_rdf import System, KnowledgeGraph
+from atomrdf import System, KnowledgeGraph
 from typing import Tuple, Optional
 import ase
 from scipy.signal import find_peaks
@@ -144,8 +144,8 @@ def find_lattice_parameter(
 
     Parameters
     ----------
-    crystal_system : pyscal_rdf.System
-        The crystal structure as a pyscal_rdf.System object.
+    crystal_system : atomrdf.System
+        The crystal structure as a atomrdf.System object.
     lattice_type : str
         The type of lattice ('fcc', 'bcc', 'hcp').
 
