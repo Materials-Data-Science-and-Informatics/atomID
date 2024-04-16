@@ -51,19 +51,30 @@ def analyze_defects(
     atom_position_list = np.zeros(len(reference_positions))
     substitution_list = np.zeros(len(reference_positions))
     # Analyze atom positions to detect vacancies and interstitials
-    for actual in actual_positions:
-        nearest_index, _ = find_nearest_atom(actual, reference_positions)
-        if species_actual and species_ref:
-            if species_actual[nearest_index] == species_ref[0]:
-                atom_position_list[nearest_index] += 1
-            else:
-                substitution_list[nearest_index] += 1
 
-    vacancies = [
-        (i, tuple(pos))
-        for i, pos in enumerate(reference_positions)
-        if atom_position_list[i] == 0 and substitution_list[i] == 0
-    ]
+    if len(species_actual) != 0:
+        for i, actual in enumerate(actual_positions):
+            nearest_index, _ = find_nearest_atom(actual, reference_positions)
+            if species_actual[nearest_index] == species_ref:
+                if species_actual[i] == species_ref[nearest_index]:
+                    atom_position_list[nearest_index] += 1
+                else:
+                    substitution_list[nearest_index] += 1
+        vacancies = [
+            (i, tuple(pos))
+            for i, pos in enumerate(reference_positions)
+            if atom_position_list[i] == 0 and substitution_list[i] == 0
+        ]
+
+    else:
+        for actual in actual_positions:
+            nearest_index, _ = find_nearest_atom(actual, reference_positions)
+            atom_position_list[nearest_index] += 1
+        vacancies = [
+            (i, tuple(pos))
+            for i, pos in enumerate(reference_positions)
+            if atom_position_list[i] == 0
+        ]
 
     vacancy_count = len(vacancies)
     vacancy_fraction = round(vacancy_count / len(actual_positions), 3)
