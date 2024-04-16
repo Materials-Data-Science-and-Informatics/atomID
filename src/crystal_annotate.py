@@ -291,14 +291,14 @@ def add_defects_to_graph(kg: KnowledgeGraph, system_name: str, defects: dict) ->
             kg.graph.add(
                 (
                     URIRef(f"{system_name}_SimulationCell"),
-                    CMSO[f"hasNumberOf{defect_type}"],
+                    PODO[f"hasNumberOf{defect_type}"],
                     Literal(defect_info["count"], datatype=XSD.integer),
                 )
             )
             kg.graph.add(
                 (
                     URIRef(f"{system_name}_SimulationCell"),
-                    CMSO[f"has{defect_type}Concentration"],
+                    PODO[f"has{defect_type}Concentration"],
                     Literal(defect_info["fraction"], datatype=XSD.float),
                 )
             )
