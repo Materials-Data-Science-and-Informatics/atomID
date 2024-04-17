@@ -1,14 +1,17 @@
-from ase.io import read as ase_read
-from atomrdf import System, KnowledgeGraph
-from typing import Tuple, Optional
+"""Main module for the atomid package."""
+
+from typing import Optional, Tuple
+
 import ase
-from rdflib import Literal, XSD, URIRef, Namespace, RDF
-from point_defect_analysis.wigner_seitz_method import analyze_defects
-from general_utils import convert_plural_to_singular
+from ase.io import read as ase_read
+from atomrdf import KnowledgeGraph, System
 from crystal_analysis.structure_identification import (
-    get_crystal_structure_using_cna,
     find_lattice_parameter,
+    get_crystal_structure_using_cna,
 )
+from general_utils import convert_plural_to_singular
+from point_defect_analysis.wigner_seitz_method import analyze_defects
+from rdflib import RDF, XSD, Literal, Namespace, URIRef
 
 CMSO = Namespace("http://purls.helmholtz-metadaten.de/cmso/")
 PODO = Namespace("http://purls.helmholtz-metadaten.de/podo/")
@@ -18,7 +21,7 @@ def read_crystal_structure_file(
     filename: str, format: Optional[str] = None
 ) -> Tuple[ase.Atoms, System, KnowledgeGraph]:
     """
-    Read a crystal file and return the pyscal atoms object
+    Read a crystal file and return the pyscal atoms object.
 
     Parameters
     ----------
@@ -37,7 +40,6 @@ def read_crystal_structure_file(
         The pyscal knowledge graph object
 
     """
-
     crystal_structure = ase_read(filename, format=format)
     kg = KnowledgeGraph()
     # Convert to pyscal atoms object
@@ -50,7 +52,7 @@ def add_defects_to_graph(kg: KnowledgeGraph, system_name: str, defects: dict) ->
     """
     Add defect data to the knowledge graph.
 
-    Parameters:
+    Parameters
     kg (KnowledgeGraph): The knowledge graph instance.
     system_name (str): The name of the system being modelled.
     defects (dict): A dictionary with defect types as keys and dictionaries with 'count' and 'fraction' as values.
@@ -63,7 +65,7 @@ def add_defects_to_graph(kg: KnowledgeGraph, system_name: str, defects: dict) ->
 def add_defect_relations(
     kg: KnowledgeGraph, system_name: str, defect_type: str, defect_info: dict
 ) -> None:
-    """Helper function to add defect relations to the knowledge graph."""
+    """Add defects to the knowledge graph."""
     singular_defect_type: str = convert_plural_to_singular(defect_type)
     kg.graph.add(
         (
@@ -117,7 +119,7 @@ def annotate_defects(
 
 
 def annotate_crystal_structure(data_file: str, format: str, output_file: str) -> None:
-    """Annotate the crystal structure using pyscal and save the results to a knowledge graph
+    """Annotate the crystal structure using pyscal and save the results to a knowledge graph.
 
     Parameters
     ----------
@@ -130,7 +132,8 @@ def annotate_crystal_structure(data_file: str, format: str, output_file: str) ->
 
     Returns
     -------
-    None"""
+    None
+    """
     crystal_structure, system, kg = read_crystal_structure_file(data_file, format="cif")
     system.to_graph()
 

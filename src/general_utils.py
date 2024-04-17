@@ -1,9 +1,11 @@
+"""General utility functions for the project."""
+
 import logging
 
 
 def convert_plural_to_singular(form: str) -> str:
     """
-    Convert if the form is plural and convert it to singular
+    Convert if the form is plural and convert it to singular.
 
     Parameters
     ----------

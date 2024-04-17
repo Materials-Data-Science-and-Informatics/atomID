@@ -1,6 +1,9 @@
-from atomrdf import System
+"""Crystal structure identification and lattice parameter calculation."""
+
 import logging
 from math import sqrt
+
+from atomrdf import System
 from scipy.signal import find_peaks
 
 
@@ -77,8 +80,7 @@ def analyse_diamond_structures(pyscal_system: System) -> str:
 
 def find_lattice_parameter(crystal_system: System, lattice_type: str) -> float:
     """
-    Calculate the lattice constants for a given
-    crystal structure and lattice type.
+    Calculate the lattice parameter of a crystal structure.
 
     Parameters
     ----------
@@ -97,7 +99,6 @@ def find_lattice_parameter(crystal_system: System, lattice_type: str) -> float:
     ValueError
         If the lattice type is not supported.
     """
-
     val, dist = crystal_system.calculate.radial_distribution_function(bins=500)
     peaks, _ = find_peaks(val, height=0)
 
