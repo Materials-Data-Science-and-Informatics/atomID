@@ -2,7 +2,7 @@ import numpy as np
 from typing import Tuple
 
 
-def find_nearest_atom(atom: tuple, atom_positions: np.ndarray) -> Tuple[int, float]:
+def find_nearest_atom(atom: tuple, atom_positions: np.ndarray) -> Tuple[int, list]:
     """Find the nearest atom to a given defect position.
 
     Parameters
@@ -20,7 +20,7 @@ def find_nearest_atom(atom: tuple, atom_positions: np.ndarray) -> Tuple[int, flo
         The distance between the defect and the nearest atom.
     """
     distances = np.linalg.norm(atom_positions - atom, axis=1)
-    nearest_index = np.argmin(distances)
+    nearest_index: int = np.argmin(distances)
     return nearest_index, distances[nearest_index]
 
 
