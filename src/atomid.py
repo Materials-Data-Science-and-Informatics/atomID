@@ -254,6 +254,31 @@ def get_bravis_lattice_type(crystal_structure_type: str) -> str:
     return bravais_lattice[crystal_structure_type]
 
 
+def convert_plural_to_singular(form: str) -> str:
+    """
+    Convert if the form is plural and convert it to singular
+
+    Parameters
+    ----------
+    form : str
+        The form to check
+
+    Returns
+    -------
+    str
+        The singular form
+    """
+    mapping_plural_singular = {
+        "Vacancies": "Vacancy",
+        "Interstitials": "Interstitial",
+        "Substitutionals": "Substitutional",
+    }
+
+    if form not in mapping_plural_singular:
+        logging.warning(f"Form '{form}' not found in mapping.")
+    return mapping_plural_singular.get(form, form)
+
+
 def get_space_group(crystal_number_type: str) -> Tuple[int, str]:
     """
     Get the space group number of the crystal structure
@@ -278,33 +303,52 @@ def get_space_group(crystal_number_type: str) -> Tuple[int, str]:
 
 
 def add_defects_to_graph(kg: KnowledgeGraph, system_name: str, defects: dict) -> None:
-    """Add defect data to the knowledge graph"""
+    """
+    Add defect data to the knowledge graph.
+
+    Parameters:
+    kg (KnowledgeGraph): The knowledge graph instance.
+    system_name (str): The name of the system being modelled.
+    defects (dict): A dictionary with defect types as keys and dictionaries with 'count' and 'fraction' as values.
+    """
     for defect_type, defect_info in defects.items():
         if defect_info["count"] > 0:
-            kg.graph.add(
-                (
-                    URIRef(f"{system_name}_Material"),
-                    CMSO["hasDefect"],
-                    URIRef(f"{system_name}_{defect_type}"),
-                )
-            )
-            kg.graph.add(
-                (
-                    URIRef(f"{system_name}_SimulationCell"),
-                    PODO[f"hasNumberOf{defect_type}"],
-                    Literal(defect_info["count"], datatype=XSD.integer),
-                )
-            )
-            kg.graph.add(
-                (
-                    URIRef(f"{system_name}_SimulationCell"),
-                    PODO[f"has{defect_type}Concentration"],
-                    Literal(defect_info["fraction"], datatype=XSD.float),
-                )
-            )
-            kg.graph.add(
-                (URIRef(f"{system_name}_{defect_type}"), RDF.type, PODO[defect_type])
-            )
+            add_defect_relations(kg, system_name, defect_type, defect_info)
+
+
+def add_defect_relations(
+    kg: KnowledgeGraph, system_name: str, defect_type: str, defect_info: dict
+) -> None:
+    """Helper function to add defect relations to the knowledge graph."""
+    singular_defect_type: str = convert_plural_to_singular(defect_type)
+    kg.graph.add(
+        (
+            URIRef(f"{system_name}_Material"),
+            CMSO["hasDefect"],
+            URIRef(f"{system_name}_{defect_type}"),
+        )
+    )
+    kg.graph.add(
+        (
+            URIRef(f"{system_name}_SimulationCell"),
+            PODO[f"hasNumberOf{defect_type}"],
+            Literal(defect_info["count"], datatype=XSD.integer),
+        )
+    )
+    kg.graph.add(
+        (
+            URIRef(f"{system_name}_SimulationCell"),
+            PODO[f"has{singular_defect_type}Concentration"],
+            Literal(defect_info["fraction"], datatype=XSD.float),
+        )
+    )
+    kg.graph.add(
+        (
+            URIRef(f"{system_name}_{singular_defect_type}"),
+            RDF.type,
+            PODO[singular_defect_type],
+        )
+    )
 
 
 def annotate_defects(
