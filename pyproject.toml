@@ -15,10 +15,19 @@ atomrdf = "^0.4.4"
 ruff = "^0.3.5"
 pre-commit = "^3.7.0"
 mypy = "^1.9.0"
+poethepoet = "^0.25.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+# NOTE: You can run the following with "poetry poe TASK"
+[tool.poe.tasks]
+init-dev = { shell = "pre-commit install" }
+lint = "pre-commit run"  # pass --all-files to check everything
+docs = "mkdocs build"  # run this to generate local documentation
+
 
 [tool.ruff]
 exclude = [
@@ -55,11 +64,8 @@ indent-width = 4
 
 
 [tool.ruff.lint]
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
-# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
-# McCabe complexity (`C901`) by default.
-select = ["E4", "E7", "E9", "F"]
-ignore = []
+extend-select = ["B", "D", "I", "S"]
+ignore = ["D203", "D213", "D407", "B008", "S101", "D102", "D103"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]

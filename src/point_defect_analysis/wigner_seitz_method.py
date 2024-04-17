@@ -1,5 +1,8 @@
-import numpy as np
+"""Point defect identification using the Wigner-Seitz method."""
+
 from typing import Tuple
+
+import numpy as np
 
 
 def find_nearest_atom(atom: tuple, atom_positions: np.ndarray) -> Tuple[int, list]:
@@ -27,14 +30,13 @@ def find_nearest_atom(atom: tuple, atom_positions: np.ndarray) -> Tuple[int, lis
 def analyze_defects(
     reference_positions: list,
     actual_positions: list,
-    species_ref: list = [],
-    species_actual: list = [],
+    species_ref: list = None,
+    species_actual: list = None,
 ) -> dict:
     """Analyze the lattice for vacancy and interstitial defects.
 
     Parameters
     ----------
-
     reference_positions : list of tuples
         The expected positions of the atoms in the lattice.
     actual_positions : list of tuples
