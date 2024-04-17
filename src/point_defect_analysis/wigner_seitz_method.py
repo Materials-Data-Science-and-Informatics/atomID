@@ -1,6 +1,6 @@
 """Point defect identification using the Wigner-Seitz method."""
 
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 import numpy as np
 
