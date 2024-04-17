@@ -48,59 +48,41 @@ def analyze_defects(
     """
     reference_positions = np.array(reference_positions)
     actual_positions = np.array(actual_positions)
-    atom_position_list = np.zeros(len(reference_positions))
-    substitution_list = np.zeros(len(reference_positions))
-    # Analyze atom positions to detect vacancies and interstitials
+    atom_position_count = np.zeros(len(reference_positions))
+    substitution_count = np.zeros(len(reference_positions))
 
-    if len(species_actual) != 0:
-        for i, actual in enumerate(actual_positions):
-            nearest_index, _ = find_nearest_atom(actual, reference_positions)
-            if species_actual[nearest_index] == species_ref:
-                if species_actual[i] == species_ref[nearest_index]:
-                    atom_position_list[nearest_index] += 1
-                else:
-                    substitution_list[nearest_index] += 1
-        vacancies = [
-            (i, tuple(pos))
-            for i, pos in enumerate(reference_positions)
-            if atom_position_list[i] == 0 and substitution_list[i] == 0
-        ]
+    # Process actual positions and compare with reference to identify defects
+    for i, actual in enumerate(actual_positions):
+        nearest_index, _ = find_nearest_atom(actual, reference_positions)
+        atom_position_count[nearest_index] += 1
 
-    else:
-        for actual in actual_positions:
-            nearest_index, _ = find_nearest_atom(actual, reference_positions)
-            atom_position_list[nearest_index] += 1
-        vacancies = [
-            (i, tuple(pos))
-            for i, pos in enumerate(reference_positions)
-            if atom_position_list[i] == 0
-        ]
+        # Check for substitutions if species information is provided
+        if species_actual and species_ref:
+            if species_actual[i] != species_ref[nearest_index]:
+                substitution_count[nearest_index] += 1
 
-    vacancy_count = len(vacancies)
-    vacancy_fraction = round(vacancy_count / len(actual_positions), 3)
-    interstitials = [
-        (i, tuple(pos))
-        for i, pos in enumerate(actual_positions)
-        if atom_position_list[i] > 1
-    ]
-    interstitial_count = len(interstitials)
-    interstitial_fraction = round(interstitial_count / len(actual_positions), 3)
-
-    substitutions = [
+    # Determine vacancies taking into account both atom positions and substitutions
+    vacancies = [
         (i, tuple(pos))
         for i, pos in enumerate(reference_positions)
-        if substitution_list[i] > 0
+        if atom_position_count[i] == 0 and (not species_actual or substitution_count[i] == 0)
     ]
-    substitution_count = len(substitutions)
-    substitution_fraction = round(substitution_count / len(actual_positions), 3)
+
+    vacancies = [(i, tuple(pos)) for i, pos in enumerate(reference_positions) if atom_position_count[i] == 0]
+    interstitials = [(i, tuple(pos)) for i, pos in enumerate(actual_positions) if atom_position_count[i] > 1]
+    substitutions = [(i, tuple(pos)) for i, pos in enumerate(reference_positions) if substitution_count[i] > 0]
+
     return {
-        "Vacancies": {"count": vacancy_count, "fraction": vacancy_fraction},
+        "Vacancies": {
+            "count": len(vacancies),
+            "fraction": len(vacancies) / len(reference_positions),
+        },
         "Interstitials": {
-            "count": interstitial_count,
-            "fraction": interstitial_fraction,
+            "count": len(interstitials),
+            "fraction": len(interstitials) / len(actual_positions),
         },
         "Substitutions": {
-            "count": substitution_count,
-            "fraction": substitution_fraction,
+            "count": len(substitutions),
+            "fraction": len(substitutions) / len(reference_positions),
         },
     }
