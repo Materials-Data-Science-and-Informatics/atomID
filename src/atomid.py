@@ -253,6 +253,7 @@ def get_bravis_lattice_type(crystal_structure_type: str) -> str:
     }
     return bravais_lattice[crystal_structure_type]
 
+
 def convert_plural_to_singular(form: str) -> str:
     """
     Convert if the form is plural and convert it to singular
@@ -277,6 +278,7 @@ def convert_plural_to_singular(form: str) -> str:
         logging.warning(f"Form '{form}' not found in mapping.")
     return mapping_plural_singular.get(form, form)
 
+
 def get_space_group(crystal_number_type: str) -> Tuple[int, str]:
     """
     Get the space group number of the crystal structure
@@ -300,7 +302,6 @@ def get_space_group(crystal_number_type: str) -> Tuple[int, str]:
     return space_group[crystal_number_type]
 
 
-
 def add_defects_to_graph(kg: KnowledgeGraph, system_name: str, defects: dict) -> None:
     """
     Add defect data to the knowledge graph.
@@ -314,9 +315,12 @@ def add_defects_to_graph(kg: KnowledgeGraph, system_name: str, defects: dict) ->
         if defect_info["count"] > 0:
             add_defect_relations(kg, system_name, defect_type, defect_info)
 
-def add_defect_relations(kg: KnowledgeGraph, system_name: str, defect_type: str, defect_info: dict):
+
+def add_defect_relations(
+    kg: KnowledgeGraph, system_name: str, defect_type: str, defect_info: dict
+) -> None:
     """Helper function to add defect relations to the knowledge graph."""
-    singular_defect_type = convert_plural_to_singular(defect_type)
+    singular_defect_type: str = convert_plural_to_singular(defect_type)
     kg.graph.add(
         (
             URIRef(f"{system_name}_Material"),
@@ -339,10 +343,12 @@ def add_defect_relations(kg: KnowledgeGraph, system_name: str, defect_type: str,
         )
     )
     kg.graph.add(
-        (URIRef(f"{system_name}_{singular_defect_type}"), RDF.type, PODO[singular_defect_type])
+        (
+            URIRef(f"{system_name}_{singular_defect_type}"),
+            RDF.type,
+            PODO[singular_defect_type],
+        )
     )
-
-
 
 
 def annotate_defects(

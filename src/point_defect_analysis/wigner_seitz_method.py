@@ -65,12 +65,25 @@ def analyze_defects(
     vacancies = [
         (i, tuple(pos))
         for i, pos in enumerate(reference_positions)
-        if atom_position_count[i] == 0 and (not species_actual or substitution_count[i] == 0)
+        if atom_position_count[i] == 0
+        and (not species_actual or substitution_count[i] == 0)
     ]
 
-    vacancies = [(i, tuple(pos)) for i, pos in enumerate(reference_positions) if atom_position_count[i] == 0]
-    interstitials = [(i, tuple(pos)) for i, pos in enumerate(actual_positions) if atom_position_count[i] > 1]
-    substitutions = [(i, tuple(pos)) for i, pos in enumerate(reference_positions) if substitution_count[i] > 0]
+    vacancies = [
+        (i, tuple(pos))
+        for i, pos in enumerate(reference_positions)
+        if atom_position_count[i] == 0
+    ]
+    interstitials = [
+        (i, tuple(pos))
+        for i, pos in enumerate(actual_positions)
+        if atom_position_count[i] > 1
+    ]
+    substitutions = [
+        (i, tuple(pos))
+        for i, pos in enumerate(reference_positions)
+        if substitution_count[i] > 0
+    ]
 
     return {
         "Vacancies": {
