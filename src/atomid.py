@@ -1,5 +1,6 @@
 """Main module for the atomid package."""
 
+import logging
 from typing import Optional, Tuple
 
 import ase
@@ -43,7 +44,7 @@ def read_crystal_structure_file(
     crystal_structure = ase_read(filename, format=format)
     kg = KnowledgeGraph()
     # Convert to pyscal atoms object
-    system = System(filename=crystal_structure, format="ase", graph=kg)
+    system = System.read.file(filename=crystal_structure, format="ase", graph=kg)
 
     return crystal_structure, system, kg
 
@@ -101,24 +102,64 @@ def annotate_defects(
     input_turtle_file: str, reference_data_file: str, output_file: str
 ) -> None:
     """Annotates defects in the material sample described in the input turtle file using the reference data file."""
-    kg = KnowledgeGraph(graph_file=input_turtle_file)
-    sample = kg.samples[0]
-    system_name = str(sample)
-    system = kg.get_system_from_sample(sample)
+    kg_input = KnowledgeGraph(graph_file=input_turtle_file)
+    sample = kg_input.samples[0]
+    input_system = kg_input.get_system_from_sample(sample)
 
-    actual_positions = system.atoms.positions
+    actual_positions = input_system.atoms.positions
     _, ref_system, _ = read_crystal_structure_file(reference_data_file, format="cif")
     ref_positions = ref_system.atoms.positions
 
     defects = analyze_defects(
         reference_positions=ref_positions, actual_positions=actual_positions
     )
-    add_defects_to_graph(kg, system_name, defects)
+    vacancies = defects.get("Vacancies", {"count": 0, "fraction": 0})
 
-    kg.write(output_file, format="ttl")
+    input_system._name = str(sample)
+    print(input_system.simulation_cell)
+    if vacancies["count"] > 0:
+        input_system.add_vacancy(
+            concentration=vacancies["fraction"], number=vacancies["count"]
+        )
+    print(f"Vacancies: {vacancies}")
+    print(input_system.graph)
+    # print(kg_input.graph.serialize(format="turtle"))
+    kg_input.write(output_file, format="ttl")
 
 
-def annotate_crystal_structure(data_file: str, format: str, output_file: str) -> None:
+def annotate_defects_in_crystal_structure(
+    pyscal_system: System, reference_data_file: str, ref_format: str
+) -> KnowledgeGraph:
+    """Annotates defects in the crystal structure using the reference data file."""
+    actual_positions = pyscal_system.atoms.positions
+    _, ref_system, _ = read_crystal_structure_file(
+        reference_data_file, format=ref_format
+    )
+    ref_positions = ref_system.atoms.positions
+
+    defects = analyze_defects(
+        reference_positions=ref_positions, actual_positions=actual_positions
+    )
+    vacancies = defects.get("Vacancies", {"count": 0, "fraction": 0})
+
+    if vacancies["count"] > 0:
+        print("graph", pyscal_system.graph)
+        pyscal_system.add_vacancy(
+            concentration=vacancies["fraction"], number=vacancies["count"]
+        )
+        pyscal_system.graph.write("def_out.ttl", format="ttl")
+
+    return pyscal_system.graph
+    print(f"Vacancies: {vacancies}")
+
+
+def annotate_crystal_structure(
+    data_file: str,
+    format: str,
+    output_file: str,
+    annotate_defects: Optional[bool] = None,
+    reference_data_file: Optional[str] = None,
+) -> None:
     """Annotate the crystal structure using pyscal and save the results to a knowledge graph.
 
     Parameters
@@ -149,5 +190,9 @@ def annotate_crystal_structure(data_file: str, format: str, output_file: str) ->
             lattice=crystal_type,
             lattice_constant=lattice_constants,
         )
+
+    if annotate_defects:
+        logging.info("Annotating defects in the crystal structure")
+        kg = annotate_defects_in_crystal_structure(system, reference_data_file, format)
 
     kg.write(output_file, format="ttl")
