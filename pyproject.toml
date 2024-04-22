@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "atomID"
-version = "0.2.0"
+version = "0.2.1"
 description = "Python package to identify and annotate crystal structure data files"
 authors = ["Ninad Bhat"]
 readme = "README.md"
@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.9"
 pyscal3 = "^3.1.9"
 rdflib = "^7.0.0"
-atomrdf = "^0.4.4"
+atomrdf = "^0.6.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.5"
