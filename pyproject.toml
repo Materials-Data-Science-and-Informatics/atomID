@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "atomID"
-version = "0.2.0"
+version = "0.2.1"
 description = "Python package to identify and annotate crystal structure data files"
 authors = ["Ninad Bhat"]
 readme = "README.md"
