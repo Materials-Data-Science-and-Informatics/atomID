@@ -49,7 +49,7 @@ def read_crystal_structure_file(
 
 
 def identify_defects_in_crystal_structure(
-    pyscal_system: System, reference_data_file: str, ref_format: str
+    pyscal_system: System, reference_data_file: str, ref_format: Optional[str] = None
 ) -> dict[str, dict[str, float]]:
     """Annotates defects in the crystal structure using the reference data file."""
     actual_positions = pyscal_system.atoms.positions
@@ -67,7 +67,6 @@ def annotate_crystal_structure(
     data_file: str,
     format: str,
     output_file: str,
-    annotate_defects: Optional[bool] = None,
     reference_data_file: Optional[str] = None,
     ref_format: Optional[str] = None,
 ) -> None:
@@ -104,10 +103,10 @@ def annotate_crystal_structure(
             lattice_constant=lattice_constants,
         )
 
-    if annotate_defects:
+    if reference_data_file:
         logging.info("Annotating defects in the crystal structure")
         defects = identify_defects_in_crystal_structure(
-            system, reference_data_file, ref_format=ref_format
+            system, reference_data_file, ref_format
         )
         vacancies = defects.get("Vacancies", {"count": 0, "fraction": 0})
 
