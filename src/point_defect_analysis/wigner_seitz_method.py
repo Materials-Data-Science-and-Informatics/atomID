@@ -32,7 +32,7 @@ def analyze_defects(
     actual_positions: list,
     species_ref: Optional[list] = None,
     species_actual: Optional[list] = None,
-) -> dict:
+) -> dict[str, dict[str, float]]:
     """Analyze the lattice for vacancy and interstitial defects.
 
     Parameters
