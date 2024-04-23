@@ -48,36 +48,27 @@ def read_crystal_structure_file(
     return crystal_structure, system, kg
 
 
-def annotate_defects_in_crystal_structure(
-    pyscal_system: System, reference_data_file: str, ref_format: str
-) -> KnowledgeGraph:
+def identify_defects_in_crystal_structure(
+    pyscal_system: System, reference_data_file: str, ref_format: Optional[str] = None
+) -> dict[str, dict[str, float]]:
     """Annotates defects in the crystal structure using the reference data file."""
     actual_positions = pyscal_system.atoms.positions
-    _, ref_system, _ = read_crystal_structure_file(
-        reference_data_file, format=ref_format
-    )
-    ref_positions = ref_system.atoms.positions
+    ref_ase = ase_read(reference_data_file, format=ref_format)
+    ref_positions = ref_ase.positions
 
-    defects = analyze_defects(
+    defects: dict[str, dict[str, float]] = analyze_defects(
         reference_positions=ref_positions, actual_positions=actual_positions
     )
-    vacancies = defects.get("Vacancies", {"count": 0, "fraction": 0})
 
-    if vacancies["count"] > 0:
-        logging.info("Adding vacancies to the graph.")
-        pyscal_system.add_vacancy(
-            concentration=vacancies["fraction"], number=vacancies["count"]
-        )
-
-    return pyscal_system.graph
+    return defects
 
 
 def annotate_crystal_structure(
     data_file: str,
     format: str,
     output_file: str,
-    annotate_defects: Optional[bool] = None,
     reference_data_file: Optional[str] = None,
+    ref_format: Optional[str] = None,
 ) -> None:
     """Annotate the crystal structure using pyscal and save the results to a knowledge graph.
 
@@ -94,7 +85,9 @@ def annotate_crystal_structure(
     -------
     None
     """
-    crystal_structure, system, kg = read_crystal_structure_file(data_file, format="cif")
+    crystal_structure, system, kg = read_crystal_structure_file(
+        data_file, format=format
+    )
     system.to_graph()
 
     crystal_type = get_crystal_structure_using_cna(system)
@@ -110,8 +103,15 @@ def annotate_crystal_structure(
             lattice_constant=lattice_constants,
         )
 
-    if annotate_defects:
+    if reference_data_file:
         logging.info("Annotating defects in the crystal structure")
-        kg = annotate_defects_in_crystal_structure(system, reference_data_file, format)
+        defects = identify_defects_in_crystal_structure(
+            system, reference_data_file, ref_format
+        )
+        vacancies = defects.get("Vacancies", {"count": 0, "fraction": 0})
 
+        if vacancies["count"] > 0:
+            system.add_vacancy(
+                concentration=vacancies["fraction"], number=vacancies["count"]
+            )
     kg.write(output_file, format="ttl")

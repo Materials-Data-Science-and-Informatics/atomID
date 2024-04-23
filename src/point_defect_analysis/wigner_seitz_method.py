@@ -5,7 +5,9 @@ from typing import Optional, Tuple
 import numpy as np
 
 
-def find_nearest_atom(atom: tuple, atom_positions: np.ndarray) -> Tuple[int, list]:
+def find_nearest_atom(
+    atom: tuple, atom_positions: np.ndarray
+) -> Tuple[np.signedinteger, list]:
     """Find the nearest atom to a given defect position.
 
     Parameters
@@ -23,16 +25,16 @@ def find_nearest_atom(atom: tuple, atom_positions: np.ndarray) -> Tuple[int, lis
         The distance between the defect and the nearest atom.
     """
     distances = np.linalg.norm(atom_positions - atom, axis=1)
-    nearest_index: int = np.argmin(distances)
+    nearest_index: np.signedinteger = np.argmin(distances)
     return nearest_index, distances[nearest_index]
 
 
 def analyze_defects(
-    reference_positions: list,
-    actual_positions: list,
+    reference_positions_list: list,
+    actual_positions_list: list,
     species_ref: Optional[list] = None,
     species_actual: Optional[list] = None,
-) -> dict:
+) -> dict[str, dict[str, float]]:
     """Analyze the lattice for vacancy and interstitial defects.
 
     Parameters
@@ -48,8 +50,8 @@ def analyze_defects(
         A dictionary containing the vacancy and interstitial defects.
 
     """
-    reference_positions = np.array(reference_positions)
-    actual_positions = np.array(actual_positions)
+    reference_positions: np.ndarray = np.array(reference_positions_list)
+    actual_positions: np.ndarray = np.array(actual_positions_list)
     atom_position_count = np.zeros(len(reference_positions))
     substitution_count = np.zeros(len(reference_positions))
 
