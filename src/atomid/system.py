@@ -1,20 +1,21 @@
-"""Annotate system class."""
+"""Annotate crystal class."""
 
 import atomrdf as ardf
 from ase.io import read as ase_read
-from crystal.structure_identification import (
+
+from atomid.crystal.structure_identification import (
     find_lattice_parameter,
     get_crystal_structure_using_cna,
 )
-from point_defect_analysis.wigner_seitz_method import analyze_defects
+from atomid.point_defect_analysis.wigner_seitz_method import analyze_defects
 
 
-class System:
-    """Annotate sytem obect."""
+class AnnotateCrystal:
+    """Annotate crystal object."""
 
     def __init__(self) -> None:
         self.system = ardf.System()
-        self.graph = ardf.KnowledgeGraph()
+        self.kg = ardf.KnowledgeGraph()
 
     def read_crystal_structure_file(self, data_file: str, format: str) -> None:
         """Read the crystal structure file."""
@@ -24,7 +25,7 @@ class System:
             filename=crystal_data, format="ase", graph=kg
         )
 
-        self.graph = kg
+        self.kg = kg
         self.system = crystal_structure
 
     def annotate_crystal_structure(self) -> None:
@@ -36,7 +37,7 @@ class System:
             self.system = ardf.System.read.file(
                 crystal_structure,
                 format="ase",
-                graph=self.graph,
+                graph=self.kg,
                 lattice=crystal_structure,
                 lattice_constant=lattice_constants,
             )
@@ -47,7 +48,8 @@ class System:
         ref_positions = ref_ase.positions
 
         defects: dict[str, dict[str, float]] = analyze_defects(
-            reference_positions=ref_positions, actual_positions=actual_positions
+            reference_positions_list=ref_positions,
+            actual_positions_list=actual_positions,
         )
         return defects
 
@@ -60,3 +62,7 @@ class System:
             self.system.add_vacancy(
                 concentration=vacancies["fraction"], number=vacancies["count"]
             )
+
+    def write_to_file(self, filename: str, format: str = "ttl") -> None:
+        """Write the annotated system to a file."""
+        self.kg.write(filename, format=format)

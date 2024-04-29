@@ -6,12 +6,13 @@ from typing import Optional, Tuple
 import ase
 from ase.io import read as ase_read
 from atomrdf import KnowledgeGraph, System
-from crystal.structure_identification import (
+from rdflib import Namespace
+
+from atomid.crystal.structure_identification import (
     find_lattice_parameter,
     get_crystal_structure_using_cna,
 )
-from point_defect_analysis.wigner_seitz_method import analyze_defects
-from rdflib import Namespace
+from atomid.point_defect_analysis.wigner_seitz_method import analyze_defects
 
 CMSO = Namespace("http://purls.helmholtz-metadaten.de/cmso/")
 PODO = Namespace("http://purls.helmholtz-metadaten.de/podo/")
@@ -57,7 +58,7 @@ def identify_defects_in_crystal_structure(
     ref_positions = ref_ase.positions
 
     defects: dict[str, dict[str, float]] = analyze_defects(
-        reference_positions=ref_positions, actual_positions=actual_positions
+        reference_positions_list=ref_positions, actual_positions_list=actual_positions
     )
 
     return defects
