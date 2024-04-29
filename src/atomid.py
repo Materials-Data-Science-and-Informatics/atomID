@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 import ase
 from ase.io import read as ase_read
 from atomrdf import KnowledgeGraph, System
-from crystal_analysis.structure_identification import (
+from crystal.structure_identification import (
     find_lattice_parameter,
     get_crystal_structure_using_cna,
 )
