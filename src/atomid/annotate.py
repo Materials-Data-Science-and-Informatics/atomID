@@ -16,6 +16,7 @@ class AnnotateCrystal:
     def __init__(self) -> None:
         self.system = ardf.System()
         self.kg = ardf.KnowledgeGraph()
+        self.ase_crystal = None
 
     def read_crystal_structure_file(self, data_file: str, format: str) -> None:
         """Read the crystal structure file.
@@ -27,10 +28,10 @@ class AnnotateCrystal:
         format : str
             The format of the file. If None, the format is guessed from the file extension
         """
-        crystal_data = ase_read(data_file, format=format)
+        self.ase_crystal = ase_read(data_file, format=format)
         kg = ardf.KnowledgeGraph()
         crystal_structure = ardf.System.read.file(
-            filename=crystal_data, format="ase", graph=kg
+            filename=self.ase_crystal, format="ase", graph=kg
         )
 
         self.kg = kg
@@ -42,15 +43,17 @@ class AnnotateCrystal:
         This method identifies the crystal structure using Common Neighbour Analysis
         and lattice constant using radial distribution function.
         """
-        crystal_structure = get_crystal_structure_using_cna(self.system)
+        crystal_type = get_crystal_structure_using_cna(self.system)
 
-        if crystal_structure != "others":
-            lattice_constants = find_lattice_parameter(self.system, crystal_structure)
+        if crystal_type != "others":
+            lattice_constants = find_lattice_parameter(self.system, crystal_type)
+            self.system = None
+            self.kg = ardf.KnowledgeGraph()
             self.system = ardf.System.read.file(
-                crystal_structure,
+                self.ase_crystal,
                 format="ase",
                 graph=self.kg,
-                lattice=crystal_structure,
+                lattice=crystal_type,
                 lattice_constant=lattice_constants,
             )
 
