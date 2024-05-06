@@ -3,6 +3,7 @@
 from typing import Optional, Tuple
 
 import numpy as np
+from annoy import AnnoyIndex
 
 
 def find_nearest_atom(
@@ -34,6 +35,7 @@ def analyze_defects(
     actual_positions_list: list,
     species_ref: Optional[list] = None,
     species_actual: Optional[list] = None,
+    method: Optional[str] = None,
 ) -> dict[str, dict[str, float]]:
     """Analyze the lattice for vacancy and interstitial defects.
 
@@ -54,16 +56,29 @@ def analyze_defects(
     actual_positions: np.ndarray = np.array(actual_positions_list)
     atom_position_count = np.zeros(len(reference_positions))
     substitution_count = np.zeros(len(reference_positions))
+    if method == "annoy":
+        t = AnnoyIndex(3, "euclidean")
+        for i in range(len(reference_positions)):
+            t.add_item(i, reference_positions[i])
+        t.build(10)
 
-    # Process actual positions and compare with reference to identify defects
-    for i, actual in enumerate(actual_positions):
-        nearest_index, _ = find_nearest_atom(actual, reference_positions)
-        atom_position_count[nearest_index] += 1
+    if method == "annoy":
+        for i, actual in enumerate(actual_positions):
+            nearest_index = t.get_nns_by_vector(actual, 1)[0]
+            atom_position_count[nearest_index] += 1
+            if species_actual and species_ref:
+                if species_actual[i] != species_ref[nearest_index]:
+                    substitution_count[nearest_index] += 1
+    else:
+        # Process actual positions and compare with reference to identify defects
+        for i, actual in enumerate(actual_positions):
+            nearest_index, _ = find_nearest_atom(actual, reference_positions)
+            atom_position_count[nearest_index] += 1
 
-        # Check for substitutions if species information is provided
-        if species_actual and species_ref:
-            if species_actual[i] != species_ref[nearest_index]:
-                substitution_count[nearest_index] += 1
+            # Check for substitutions if species information is provided
+            if species_actual and species_ref:
+                if species_actual[i] != species_ref[nearest_index]:
+                    substitution_count[nearest_index] += 1
 
     # Determine vacancies taking into account both atom positions and substitutions
     vacancies = [

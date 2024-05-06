@@ -1,5 +1,7 @@
 """Annotate crystal class."""
 
+from typing import Optional
+
 import atomrdf as ardf
 from ase.io import read as ase_read
 
@@ -57,7 +59,9 @@ class AnnotateCrystal:
                 lattice_constant=lattice_constants,
             )
 
-    def identify_defects(self, reference_data_file: str, ref_format: str) -> dict:
+    def identify_defects(
+        self, reference_data_file: str, ref_format: str, method: Optional[str] = None
+    ) -> dict:
         """Identify defects in the crystal structure using the reference data file.
 
         Parameters
@@ -79,10 +83,13 @@ class AnnotateCrystal:
         defects: dict[str, dict[str, float]] = analyze_defects(
             reference_positions_list=ref_positions,
             actual_positions_list=actual_positions,
+            method=method,
         )
         return defects
 
-    def annotate_defects(self, reference_data_file: str, ref_format: str) -> None:
+    def annotate_defects(
+        self, reference_data_file: str, ref_format: str, method: Optional[str] = None
+    ) -> None:
         """Annotate defects in the crystal structure using the reference data file.
 
         Parameters
@@ -93,7 +100,7 @@ class AnnotateCrystal:
             The format of the file. If None, the format is guessed from the file extension
 
         """
-        defects = self.identify_defects(reference_data_file, ref_format)
+        defects = self.identify_defects(reference_data_file, ref_format, method)
 
         vacancies = defects.get("Vacancies", {"count": 0, "fraction": 0})
 
