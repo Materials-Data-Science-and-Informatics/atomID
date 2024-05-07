@@ -1,43 +1,18 @@
-"""Point defect identification using the Wigner-Seitz method."""
+"""Wigner-Seitz method for point defect analysis."""
 
-from typing import Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
-from annoy import AnnoyIndex
-
-
-def find_nearest_atom(
-    atom: tuple, atom_positions: np.ndarray
-) -> Tuple[np.signedinteger, list]:
-    """Find the nearest atom to a given defect position.
-
-    Parameters
-    ----------
-    atom : tuple
-        The position of the defect atom.
-    atom_positions : np.ndarra
-        The positions of the atoms in the lattice.
-
-    Returns
-    -------
-    nearest_index : int
-        The index of the nearest atom.
-    distance : float
-        The distance between the defect and the nearest atom.
-    """
-    distances = np.linalg.norm(atom_positions - atom, axis=1)
-    nearest_index: np.signedinteger = np.argmin(distances)
-    return nearest_index, distances[nearest_index]
 
 
 def analyze_defects(
-    reference_positions_list: list,
-    actual_positions_list: list,
-    species_ref: Optional[list] = None,
-    species_actual: Optional[list] = None,
+    reference_positions: List[Tuple[float, float, float]],
+    actual_positions: List[Tuple[float, float, float]],
+    species_ref: Optional[List[str]] = None,
+    species_actual: Optional[List[str]] = None,
     method: Optional[str] = None,
-) -> dict[str, dict[str, float]]:
-    """Analyze the lattice for vacancy and interstitial defects.
+) -> Dict[str, Dict[str, float]]:
+    """Analyze the lattice for vacancy, interstitial, and substitution defects.
 
     Parameters
     ----------
@@ -45,76 +20,118 @@ def analyze_defects(
         The expected positions of the atoms in the lattice.
     actual_positions : list of tuples
         The actual positions of the atoms in the lattice.
+    species_ref : list of str, optional
+        Species at each reference position.
+    species_actual : list of str, optional
+        Species at each actual position.
+    method : str, optional
+        The method to find nearest positions ('annoy' for using AnnoyIndex).
 
     Returns
     -------
-    defect_analysis : dict
-        A dictionary containing the vacancy and interstitial defects.
-
+    dict
+        A dictionary containing the counts and fractions of vacancies, interstitials, and substitutions.
     """
-    reference_positions: np.ndarray = np.array(reference_positions_list)
-    actual_positions: np.ndarray = np.array(actual_positions_list)
-    atom_position_count = np.zeros(len(reference_positions))
-    substitution_count = np.zeros(len(reference_positions))
+    reference_array = np.array(reference_positions)
+    actual_array = np.array(actual_positions)
+
+    atom_position_count = np.zeros(len(reference_array))
+    substitution_count = np.zeros(len(reference_array))
+    index_finder = create_index_finder(reference_array, method)
+
+    for i, actual in enumerate(actual_array):
+        nearest_index = index_finder(actual)
+        atom_position_count[nearest_index] += 1
+        if (
+            species_ref
+            and species_actual
+            and species_actual[i] != species_ref[nearest_index]
+        ):
+            substitution_count[nearest_index] += 1
+
+    defects: dict = calculate_defects(
+        reference_array, atom_position_count, substitution_count
+    )
+    return defects
+
+
+def create_index_finder(
+    reference_array: np.ndarray, method: Optional[str] = None
+) -> Callable:
+    """Create a function to find the index of the nearest reference position.
+
+    Parameters
+    ----------
+    reference_array : np.ndarray
+        The reference positions of the atoms.
+    method : str, optional
+        The method to find nearest positions ('annoy' for using AnnoyIndex).
+
+    Returns
+    -------
+    function
+    A function that takes an actual position and returns the index of the nearest reference position.
+    """
     if method == "annoy":
-        t = AnnoyIndex(3, "euclidean")
-        for i in range(len(reference_positions)):
-            t.add_item(i, reference_positions[i])
+        from annoy import AnnoyIndex
+
+        t = AnnoyIndex(len(reference_array[0]), "euclidean")
+        for i, ref in enumerate(reference_array):
+            t.add_item(i, ref)
         t.build(10)
-
-    if method == "annoy":
-        for i, actual in enumerate(actual_positions):
-            nearest_index = t.get_nns_by_vector(actual, 1)[0]
-            atom_position_count[nearest_index] += 1
-            if species_actual and species_ref:
-                if species_actual[i] != species_ref[nearest_index]:
-                    substitution_count[nearest_index] += 1
+        return lambda x: t.get_nns_by_vector(x, 1)[0]
     else:
-        # Process actual positions and compare with reference to identify defects
-        for i, actual in enumerate(actual_positions):
-            nearest_index, _ = find_nearest_atom(actual, reference_positions)
-            atom_position_count[nearest_index] += 1
+        return lambda x: np.argmin(np.sum((reference_array - x) ** 2, axis=1))
 
-            # Check for substitutions if species information is provided
-            if species_actual and species_ref:
-                if species_actual[i] != species_ref[nearest_index]:
-                    substitution_count[nearest_index] += 1
 
-    # Determine vacancies taking into account both atom positions and substitutions
+def calculate_defects(
+    reference_array: np.ndarray,
+    atom_position_count: np.ndarray,
+    substitution_count: np.ndarray,
+) -> Dict:
+    """Calculate the number and fraction of vacancies, interstitials, and substitutions.
+
+    Parameters
+    ----------
+    reference_array : np.ndarray
+        The reference positions of the atoms.
+    atom_position_count : np.ndarray
+        The number of atoms at each reference position.
+    substitution_count : np.ndarray
+        The number of substitutions at each reference position.
+
+    Returns
+    -------
+    dict
+        A dictionary containing the counts and fractions of vacancies, interstitials, and substitutions.
+    """
     vacancies = [
         (i, tuple(pos))
-        for i, pos in enumerate(reference_positions)
-        if atom_position_count[i] == 0
-        and (not species_actual or substitution_count[i] == 0)
-    ]
-
-    vacancies = [
-        (i, tuple(pos))
-        for i, pos in enumerate(reference_positions)
+        for i, pos in enumerate(reference_array)
         if atom_position_count[i] == 0
     ]
     interstitials = [
         (i, tuple(pos))
-        for i, pos in enumerate(actual_positions)
+        for i, pos in enumerate(reference_array)
         if atom_position_count[i] > 1
     ]
     substitutions = [
         (i, tuple(pos))
-        for i, pos in enumerate(reference_positions)
+        for i, pos in enumerate(reference_array)
         if substitution_count[i] > 0
     ]
 
     return {
         "Vacancies": {
             "count": len(vacancies),
-            "fraction": len(vacancies) / len(reference_positions),
+            "fraction": len(vacancies) / len(reference_array),
         },
         "Interstitials": {
             "count": len(interstitials),
-            "fraction": len(interstitials) / len(actual_positions),
+            "fraction": len(interstitials) / len(reference_array),
         },
         "Substitutions": {
             "count": len(substitutions),
-            "fraction": len(substitutions) / len(reference_positions),
+            "fraction": len(substitutions) / len(reference_array),
         },
     }

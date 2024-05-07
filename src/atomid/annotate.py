@@ -81,8 +81,8 @@ class AnnotateCrystal:
         ref_positions = ref_ase.positions
 
         defects: dict[str, dict[str, float]] = analyze_defects(
-            reference_positions_list=ref_positions,
-            actual_positions_list=actual_positions,
+            reference_positions=ref_positions,
+            actual_positions=actual_positions,
             method=method,
         )
         return defects
