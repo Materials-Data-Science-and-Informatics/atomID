@@ -3,6 +3,7 @@
 from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
+from sklearn.neighbors import KDTree
 
 
 def analyze_defects(
@@ -80,6 +81,9 @@ def create_index_finder(
             t.add_item(i, ref)
         t.build(10)
         return lambda x: t.get_nns_by_vector(x, 1)[0]
+    elif method == "kd_tree":
+        kdtree = KDTree(reference_array)
+        return lambda x: kdtree.query(x.reshape(1, -1), k=1)[1][0][0]
     else:
         return lambda x: np.argmin(np.sum((reference_array - x) ** 2, axis=1))
 
