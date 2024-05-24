@@ -79,11 +79,14 @@ class AnnotateCrystal:
         actual_positions = self.system.atoms.positions
         ref_ase = ase_read(reference_data_file, format=ref_format)
         ref_positions = ref_ase.positions
-
+        species_reference = ref_ase.get_chemical_symbols()
+        species_actual = self.system.atoms["species"]
         defects: dict[str, dict[str, float]] = analyze_defects(
             reference_positions=ref_positions,
             actual_positions=actual_positions,
             method=method,
+            species_ref=species_reference,
+            species_actual=species_actual,
         )
         return defects
 

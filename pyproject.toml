@@ -9,7 +9,7 @@ readme = "README.md"
 python = "^3.9"
 pyscal3 = "^3.1.9"
 rdflib = "^7.0.0"
-atomrdf = "^0.6.4"
+atomrdf = {git = "https://github.com/pyscal/atomRDF.git"}
 annoy = "^1.17.3"
 scikit-learn = "^1.4.2"
 

@@ -39,15 +39,15 @@ def analyze_defects(
     atom_position_count = np.zeros(len(reference_array))
     substitution_count = np.zeros(len(reference_array))
     index_finder = create_index_finder(reference_array, method)
+    if species_ref is not None and species_actual is not None:
+        identify_substitution = True
+    else:
+        identify_substitution = False
 
     for i, actual in enumerate(actual_array):
         nearest_index = index_finder(actual)
         atom_position_count[nearest_index] += 1
-        if (
-            species_ref
-            and species_actual
-            and species_actual[i] != species_ref[nearest_index]
-        ):
+        if identify_substitution and (species_actual[i] != species_ref[nearest_index]):
             substitution_count[nearest_index] += 1
 
     defects: dict = calculate_defects(
