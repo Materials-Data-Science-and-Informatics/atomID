@@ -79,11 +79,14 @@ class AnnotateCrystal:
         actual_positions = self.system.atoms.positions
         ref_ase = ase_read(reference_data_file, format=ref_format)
         ref_positions = ref_ase.positions
-
+        species_reference = ref_ase.get_chemical_symbols()
+        species_actual = self.system.atoms["species"]
         defects: dict[str, dict[str, float]] = analyze_defects(
             reference_positions=ref_positions,
             actual_positions=actual_positions,
             method=method,
+            species_ref=species_reference,
+            species_actual=species_actual,
         )
         return defects
 
@@ -103,10 +106,24 @@ class AnnotateCrystal:
         defects = self.identify_defects(reference_data_file, ref_format, method)
 
         vacancies = defects.get("Vacancies", {"count": 0, "fraction": 0})
+        interstitials = defects.get("Interstitials", {"count": 0, "fraction": 0})
+        substitutions = defects.get("Substitutions", {"count": 0, "fraction": 0})
 
         if vacancies["count"] > 0:
             self.system.add_vacancy(
                 concentration=vacancies["fraction"], number=vacancies["count"]
+            )
+
+        if interstitials["count"] > 0:
+            self.system.add_triples_for_interstitial_impurities(
+                conc_of_impurities=interstitials["fraction"],
+                no_of_impurities=interstitials["count"],
+            )
+
+        if substitutions["count"] > 0:
+            self.system.add_triples_for_substitutional_impurities(
+                conc_of_impurities=substitutions["fraction"],
+                no_of_impurities=substitutions["count"],
             )
 
     def write_to_file(self, filename: str, format: str = "ttl") -> None:
