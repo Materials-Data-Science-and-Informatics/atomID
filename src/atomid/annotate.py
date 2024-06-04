@@ -4,9 +4,13 @@ from typing import Optional
 
 import atomrdf as ardf
 from ase.io import read as ase_read
+from ovito.data import DataCollection
+from ovito.io import import_file
+from ovito.modifiers import PolyhedralTemplateMatchingModifier
 
 from atomid.crystal.structure_identification import (
-    find_lattice_parameter,
+    analyse_polyhedral_template_matching_data,
+    find_lattice_parameter_2,
     get_crystal_structure_using_cna,
 )
 from atomid.point_defect_analysis.wigner_seitz_method import analyze_defects
@@ -32,12 +36,34 @@ class AnnotateCrystal:
         """
         self.ase_crystal = ase_read(data_file, format=format)
         kg = ardf.KnowledgeGraph()
+
         crystal_structure = ardf.System.read.file(
             filename=self.ase_crystal, format="ase", graph=kg
         )
 
+        self.ovito_pipeline = import_file(data_file)
+
         self.kg = kg
         self.system = crystal_structure
+
+    def get_polyhedral_template_matching_data(self) -> DataCollection:
+        """Get the polyhedral template matching data from the ovito pipeline.
+
+        Parameters
+        ----------
+        ovito_pipeline : OvitoPipeline
+            The ovito pipeline object.
+
+        Returns
+        -------
+        dict
+            The polyhedral template matching data.
+        """
+        self.ovito_pipeline.modifiers.append(
+            PolyhedralTemplateMatchingModifier(output_interatomic_distance=True)
+        )
+        data = self.ovito_pipeline.compute()
+        return data
 
     def annotate_crystal_structure(self) -> None:
         """Identify and annotate the crystal structure.
@@ -46,9 +72,19 @@ class AnnotateCrystal:
         and lattice constant using radial distribution function.
         """
         crystal_type = get_crystal_structure_using_cna(self.system)
+        # get crystal structure from polyhedral template matching
+        structure_data = self.get_polyhedral_template_matching_data()
+        structure_type_atoms = structure_data.particles["Structure Type"][...]  # noqa
+        structure_id, crystal_type = analyse_polyhedral_template_matching_data(
+            structure_type_atoms
+        )
 
         if crystal_type != "others":
-            lattice_constants = find_lattice_parameter(self.system, crystal_type)
+            interatomic_distance = structure_data.particles["Interatomic Distance"][...]  # noqa
+            lattice_constants = find_lattice_parameter_2(
+                interatomic_distance, structure_type_atoms, int(structure_id)
+            )
+            # lattice_constants = find_lattice_parameter(self.system, crystal_type)
             self.system = None
             self.kg = ardf.KnowledgeGraph()
             self.system = ardf.System.read.file(
