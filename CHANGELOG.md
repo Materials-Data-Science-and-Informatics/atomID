@@ -1,6 +1,10 @@
 # Changelog
 
-Here we provide notes that summarize the most important changes in each released version.
+Most important changes in each released version.
+
+## v0.3.6
+
+* Add polyhedral template matching for structure analysis
 
 ## v0.3.5
 
