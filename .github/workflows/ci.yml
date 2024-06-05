@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ "macos-latest"]
+        os: [ "ubuntu-latest"]
         python-version: ["3.9"]
     runs-on: ${{ matrix.os }}
 
@@ -64,7 +64,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: "poetry"
-
+      - name:  Install
+        run:   |
+              if [ "$RUNNER_OS" == "Linux" ]; then
+                    apt-get update && apt-get install libgl1
       - name: Check that tests complete without errors
         run: |
           poetry install
