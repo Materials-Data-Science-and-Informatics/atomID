@@ -2,9 +2,13 @@
 
 Most important changes in each released version.
 
+## v0.3.7
+
+* Add documentation and set up mkdocs.
+
 ## v0.3.6
 
-* Add polyhedral template matching for structure analysis
+* Add polyhedral template matching for structure analysis.
 
 ## v0.3.5
 
