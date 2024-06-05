@@ -64,10 +64,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: "poetry"
-      - name:  Install
-        run:   |
-              if [ "$RUNNER_OS" == "Linux" ]; then
-                    apt-get update && apt-get install libgl1
+      - if: runner.os == 'Linux'
+        run:  |
+              apt-get update && apt-get install libgl1
       - name: Check that tests complete without errors
         run: |
           poetry install
