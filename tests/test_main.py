@@ -10,19 +10,26 @@ from utils.compare_rdf import compare_graphs
 class TestAnnotateCrystal:
     """Tests for the AnnotateCrystal class."""
 
-    # Define the combinations of sample and reference crystal files
-    test_data_combinations = [
-        (
-            "tests/data/fcc/Al/defect/interstitial/initial/Al_interstitial.poscar",
-            "tests/data/fcc/Al/no_defect/initial/Al.poscar",
-        ),
-    ]
     testing_dict = {
         "fcc": "Al",
         "bcc": "Fe",
         "hcp": "Mg",
         "diamond": "Si",
     }
+
+    # Generate combinations of sample and reference crystal files
+    test_data_combinations = []
+
+    defect_types = ["interstitial", "substitution", "vacancy"]
+
+    for structure, element in testing_dict.items():
+        for defect in defect_types:
+            test_data_combinations.append(
+                (
+                    f"tests/data/{structure}/{element}/defect/{defect}/initial/{element}_{defect}.poscar",
+                    f"tests/data/{structure}/{element}/no_defect/initial/{element}.poscar",
+                )
+            )
 
     @pytest.mark.parametrize(
         "sample_crystal_file, reference_crystal_file", test_data_combinations
@@ -104,7 +111,7 @@ class TestAnnotateCrystal:
 
         result, differences = compare_graphs(
             f"{tmp_path}/annotated_output.ttl",
-            "tests/data/fcc/Al/defect/interstitial/initial/Al_interstitial.ttl",
+            sample_crystal_file.replace("poscar", "ttl"),
         )
 
         if result is False:

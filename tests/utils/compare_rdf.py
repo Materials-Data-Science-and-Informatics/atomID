@@ -108,3 +108,13 @@ def handle_result_differences(
         except ValueError:
             return f"Non-numeric comparison for: {s}, {p}\nOriginal: {original_object}, Found: {row.object}"
     return f"No significant differences for: {s}, {p}"
+
+
+if __name__ == "__main__":
+    test_path = "/Users/ninadbhat/hida/atomID/Al_sub.ttl"
+    ref_path = "/Users/ninadbhat/hida/atomID/tests/data/fcc/Al/defect/substitution/initial/Al_substitution.ttl"
+    result, differences = compare_graphs(test_path, ref_path)
+    if result is False:
+        print(differences)
+
+    assert result
