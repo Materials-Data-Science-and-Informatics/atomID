@@ -5,8 +5,6 @@ import os
 import pytest
 from atomid.annotate import AnnotateCrystal
 from utils.compare_rdf import compare_graphs
-import tempfile
-
 
 
 class TestAnnotateCrystal:
@@ -30,8 +28,8 @@ class TestAnnotateCrystal:
         "sample_crystal_file, reference_crystal_file", test_data_combinations
     )
     def test_read_crystal_structure_file(
-        self, sample_crystal_file, reference_crystal_file
-    ):
+        self, sample_crystal_file: str, reference_crystal_file: str
+    ) -> None:
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(
             sample_crystal_file, format="vasp"
@@ -45,8 +43,8 @@ class TestAnnotateCrystal:
         "sample_crystal_file, reference_crystal_file", test_data_combinations
     )
     def test_annotate_crystal_structure(
-        self, sample_crystal_file, reference_crystal_file
-    ):
+        self, sample_crystal_file: str, reference_crystal_file: str
+    ) -> None:
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(
             sample_crystal_file, format="vasp"
@@ -58,7 +56,9 @@ class TestAnnotateCrystal:
     @pytest.mark.parametrize(
         "sample_crystal_file, reference_crystal_file", test_data_combinations
     )
-    def test_identify_defects(self, sample_crystal_file, reference_crystal_file):
+    def test_identify_defects(
+        self, sample_crystal_file: str, reference_crystal_file: str
+    ) -> None:
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(
             sample_crystal_file, format="vasp"
@@ -75,38 +75,35 @@ class TestAnnotateCrystal:
     @pytest.mark.parametrize(
         "sample_crystal_file, reference_crystal_file", test_data_combinations
     )
-    def test_write_defects(self, sample_crystal_file, reference_crystal_file):
+    def test_write_defects(
+        self, tmp_path: str, sample_crystal_file: str, reference_crystal_file: str
+    ) -> None:
         """Test writing the defects to a file."""
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(sample_crystal_file, format="vasp")
         annotate_crystal.identify_defects(reference_crystal_file, ref_format="vasp")
 
-        tmpdir = tempfile.mkdtemp()
-        annotate_crystal.write_to_file(f"{tmpdir}/annotated_output.ttl", "ttl")
+        annotate_crystal.write_to_file(f"{tmp_path}/annotated_output.ttl", "ttl")
 
-        assert os.path.exists(f"{tmpdir}/annotated_output.ttl")
-
-        # Clean up
-        os.remove(f"{tmpdir}/annotated_output.ttl")
+        assert os.path.exists(f"{tmp_path}/annotated_output.ttl")
 
     @pytest.mark.parametrize(
         "sample_crystal_file, reference_crystal_file", test_data_combinations
     )
-    def test_output_annotation(self, sample_crystal_file, reference_crystal_file):
+    def test_output_annotation(
+        self, tmp_path: str, sample_crystal_file: str, reference_crystal_file: str
+    ) -> None:
         """Test the output of the annotation."""
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(sample_crystal_file, format="vasp")
-        annotate_crystal.identify_defects(
-            reference_crystal_file, ref_format="vasp"
-        )
+        annotate_crystal.identify_defects(reference_crystal_file, ref_format="vasp")
 
-        tmpdir = tempfile.mkdtemp()
-        annotate_crystal.write_to_file(f"{tmpdir}/annotated_output.ttl", "ttl")
+        annotate_crystal.write_to_file(f"{tmp_path}/annotated_output.ttl", "ttl")
 
-        assert os.path.exists(f"{tmpdir}/annotated_output.ttl")
+        assert os.path.exists(f"{tmp_path}/annotated_output.ttl")
 
         result, differences = compare_graphs(
-            f"{tmpdir}/annotated_output.ttl",
+            f"{tmp_path}/annotated_output.ttl",
             "tests/data/fcc/Al/defect/interstitial/initial/Al_interstitial.ttl",
         )
 
@@ -114,8 +111,6 @@ class TestAnnotateCrystal:
             print(differences)
 
         assert result
-        # Clean up
-        os.remove(f"{tmpdir}/annotated_output.ttl")
 
 
 if __name__ == "__main__":
