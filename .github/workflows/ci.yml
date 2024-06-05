@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ "ubuntu-latest"]
+        os: [ "ubuntu-latest", "macos-latest"]
         python-version: ["3.9"]
     runs-on: ${{ matrix.os }}
 
