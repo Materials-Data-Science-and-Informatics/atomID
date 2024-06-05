@@ -26,6 +26,7 @@ mkdocs-macros-plugin = "^1.0.5"
 mkdocstrings = {extras = ["python"], version = "^0.25.1"}
 mike = "^2.1.1"
 markdown-exec = "^1.8.3"
+pytest = "^8.2.2"
 
 [build-system]
 requires = ["poetry-core"]

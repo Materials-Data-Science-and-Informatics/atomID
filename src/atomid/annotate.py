@@ -144,7 +144,6 @@ class AnnotateCrystal:
         vacancies = defects.get("Vacancies", {"count": 0, "fraction": 0})
         interstitials = defects.get("Interstitials", {"count": 0, "fraction": 0})
         substitutions = defects.get("Substitutions", {"count": 0, "fraction": 0})
-
         if vacancies["count"] > 0:
             self.system.add_vacancy(
                 concentration=vacancies["fraction"], number=vacancies["count"]

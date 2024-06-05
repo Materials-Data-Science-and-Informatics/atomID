@@ -37,7 +37,9 @@ def get_crsytal_structure_from_id(id: int) -> str:
     return structure_type.get(id, "other")
 
 
-def analyse_polyhedral_template_matching_data(atoms_structure_type: np.ndarry) -> Tuple:
+def analyse_polyhedral_template_matching_data(
+    atoms_structure_type: np.ndarray,
+) -> Tuple:
     """Analyse polyhedral template data to identify crystal structure."""
     unique, counts = np.unique(atoms_structure_type, return_counts=True)
     structure_id = unique[np.argmax(counts)]
