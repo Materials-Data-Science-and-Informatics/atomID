@@ -51,8 +51,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ "ubuntu-latest", "macos-latest"]
-        python-version: ["3.9"]
+        os: [ "ubuntu-latest", "macos-latest", "windows-latest" ]
+        python-version: ["3.9", "3.10"]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -65,7 +65,7 @@ jobs:
           cache: "poetry"
       - if: runner.os == 'Linux'
         run:  |
-              sudo  apt-get install -y libgl1
+              sudo  apt-get install -y ffmpeg libsm6 libxext6
       - name: Check that tests complete without errors
         run: |
           poetry install
