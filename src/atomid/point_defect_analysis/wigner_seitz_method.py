@@ -135,7 +135,7 @@ def calculate_defects(
             "fraction": len(interstitials) / len(reference_array),
         },
         "Substitutions": {
-            "count": len(substitutions),
+            "count": len(substitutions) - len(interstitials),
             "fraction": (len(substitutions) - len(interstitials))
             / len(reference_array),
         },

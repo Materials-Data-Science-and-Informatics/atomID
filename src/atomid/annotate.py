@@ -10,8 +10,7 @@ from ovito.modifiers import PolyhedralTemplateMatchingModifier
 
 from atomid.crystal.structure_identification import (
     analyse_polyhedral_template_matching_data,
-    find_lattice_parameter_2,
-    get_crystal_structure_using_cna,
+    find_lattice_parameter,
 )
 from atomid.point_defect_analysis.wigner_seitz_method import analyze_defects
 
@@ -59,9 +58,24 @@ class AnnotateCrystal:
         dict
             The polyhedral template matching data.
         """
-        self.ovito_pipeline.modifiers.append(
-            PolyhedralTemplateMatchingModifier(output_interatomic_distance=True)
+        polyhedral_modifier = PolyhedralTemplateMatchingModifier(
+            output_interatomic_distance=True
         )
+
+        polyhedral_modifier.structures[
+            PolyhedralTemplateMatchingModifier.Type.CUBIC_DIAMOND
+        ].enabled = True
+        polyhedral_modifier.structures[
+            PolyhedralTemplateMatchingModifier.Type.HEX_DIAMOND
+        ].enabled = True
+        polyhedral_modifier.structures[
+            PolyhedralTemplateMatchingModifier.Type.SC
+        ].enabled = True
+        polyhedral_modifier.structures[
+            PolyhedralTemplateMatchingModifier.Type.GRAPHENE
+        ].enabled = True
+
+        self.ovito_pipeline.modifiers.append(polyhedral_modifier)
         data = self.ovito_pipeline.compute()
         return data
 
@@ -71,7 +85,6 @@ class AnnotateCrystal:
         This method identifies the crystal structure using Common Neighbour Analysis
         and lattice constant using radial distribution function.
         """
-        crystal_type = get_crystal_structure_using_cna(self.system)
         # get crystal structure from polyhedral template matching
         structure_data = self.get_polyhedral_template_matching_data()
         structure_type_atoms = structure_data.particles["Structure Type"][...]  # noqa
@@ -79,12 +92,12 @@ class AnnotateCrystal:
             structure_type_atoms
         )
 
-        if crystal_type != "others":
+        if crystal_type != "other":
             interatomic_distance = structure_data.particles["Interatomic Distance"][...]  # noqa
-            lattice_constants = find_lattice_parameter_2(
+            lattice_constants = find_lattice_parameter(
                 interatomic_distance, structure_type_atoms, int(structure_id)
             )
-            # lattice_constants = find_lattice_parameter(self.system, crystal_type)
+
             self.system = None
             self.kg = ardf.KnowledgeGraph()
             self.system = ardf.System.read.file(
@@ -93,6 +106,12 @@ class AnnotateCrystal:
                 graph=self.kg,
                 lattice=crystal_type,
                 lattice_constant=lattice_constants,
+            )
+        else:
+            self.system = None
+            self.kg = ardf.KnowledgeGraph()
+            self.system = ardf.System.read.file(
+                self.ase_crystal, format="ase", graph=self.kg
             )
 
     def identify_defects(
@@ -144,7 +163,6 @@ class AnnotateCrystal:
         vacancies = defects.get("Vacancies", {"count": 0, "fraction": 0})
         interstitials = defects.get("Interstitials", {"count": 0, "fraction": 0})
         substitutions = defects.get("Substitutions", {"count": 0, "fraction": 0})
-
         if vacancies["count"] > 0:
             self.system.add_vacancy(
                 concentration=vacancies["fraction"], number=vacancies["count"]

@@ -6,12 +6,13 @@ authors = ["Ninad Bhat"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-pyscal3 = "^3.1.9"
+python = ">=3.9, <3.12"
 rdflib = "^7.0.0"
 atomrdf = {git = "https://github.com/pyscal/atomRDF.git"}
 annoy = "^1.17.3"
 scikit-learn = "^1.4.2"
+pyscal3 = {git = "https://github.com/pyscal/pyscal3"}
+ovito = "^3.10.6"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.5"
@@ -26,6 +27,7 @@ mkdocs-macros-plugin = "^1.0.5"
 mkdocstrings = {extras = ["python"], version = "^0.25.1"}
 mike = "^2.1.1"
 markdown-exec = "^1.8.3"
+pytest = "^8.2.2"
 
 [build-system]
 requires = ["poetry-core"]
@@ -37,7 +39,7 @@ build-backend = "poetry.core.masonry.api"
 init-dev = { shell = "pre-commit install" }
 lint = "pre-commit run"  # pass --all-files to check everything
 docs = "mkdocs build"  # run this to generate local documentation
-
+test = "pytest"
 
 [tool.ruff]
 exclude = [
