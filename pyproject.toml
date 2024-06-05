@@ -6,12 +6,13 @@ authors = ["Ninad Bhat"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9, <3.11"
 rdflib = "^7.0.0"
 atomrdf = {git = "https://github.com/pyscal/atomRDF.git"}
 annoy = "^1.17.3"
 scikit-learn = "^1.4.2"
 pyscal3 = {git = "https://github.com/pyscal/pyscal3"}
+ovito = "^3.10.6"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.5"
