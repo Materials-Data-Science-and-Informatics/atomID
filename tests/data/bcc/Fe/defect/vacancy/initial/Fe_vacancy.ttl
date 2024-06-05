@@ -1,0 +1,110 @@
+@prefix ns1: <http://purls.helmholtz-metadaten.de/cmso/> .
+@prefix ns2: <http://purls.helmholtz-metadaten.de/podo/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ns1:LatticeVector rdfs:subClassOf ns1:Vector .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e> a ns1:AtomicScaleSample ;
+    ns1:hasAttribute <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_Position>,
+        <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_Species> ;
+    ns1:hasMaterial <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_Material> ;
+    ns1:hasNumberOfAtoms 1980 ;
+    ns1:hasSimulationCell <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCell> ;
+    ns1:hasSpecies <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_ChemicalSpecies> ;
+    ns2:hasNumberOfVacancies 20 ;
+    ns2:hasVacancyConcentration "0.010101010101010102"^^xsd:float .
+
+ns1:LatticeAngle rdfs:subClassOf ns1:Angle .
+
+ns1:LatticeParameter rdfs:subClassOf ns1:Length .
+
+ns1:SimulationCellAngle rdfs:subClassOf ns1:Angle .
+
+ns1:SimulationCellLength rdfs:subClassOf ns1:Length .
+
+<https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18248> a ns1:ChemicalElement ;
+    ns1:hasChemicalSymbol "Fe"^^xsd:string ;
+    ns1:hasElementRatio "1.0"^^xsd:float .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_ChemicalSpecies> a ns1:ChemicalSpecies ;
+    ns1:hasElement <https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:18248> .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_CrystalStructure> a ns1:CrystalStructure ;
+    ns1:hasAltName "bcc"^^xsd:string ;
+    ns1:hasSpaceGroupNumber 229 ;
+    ns1:hasSpaceGroupSymbol "Im-3m"^^xsd:string ;
+    ns1:hasUnitCell <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_UnitCell> .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_LatticeAngle> a ns1:LatticeAngle ;
+    ns1:hasAngle_alpha "90.0"^^xsd:float ;
+    ns1:hasAngle_beta "90.0"^^xsd:float ;
+    ns1:hasAngle_gamma "90.0"^^xsd:float .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_LatticeParameter> a ns1:LatticeParameter ;
+    ns1:hasLength_x "2.87"^^xsd:float ;
+    ns1:hasLength_y "2.87"^^xsd:float ;
+    ns1:hasLength_z "2.87"^^xsd:float .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_Material> a ns1:CrystallineMaterial ;
+    ns1:hasDefect <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_Vacancy> ;
+    ns1:hasStructure <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_CrystalStructure> .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_Position> a ns1:AtomAttribute ;
+    ns1:hasIdentifier "8373344d-3db7-4cbc-8c5b-c10fc8a0732d"^^xsd:string ;
+    ns1:hasName "Position"^^xsd:string ;
+    ns1:hasPath "lattice/bcc/Fe/defect/vacancy/initial/64766d67-70fc-40a0-96b7-29d47ae4ac1e.json"^^xsd:string .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCell> a ns1:SimulationCell ;
+    ns1:hasAngle <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCellAngle> ;
+    ns1:hasLength <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCellLength> ;
+    ns1:hasVector <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCellVector_1>,
+        <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCellVector_2>,
+        <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCellVector_3> ;
+    ns1:hasVolume "23639.9"^^xsd:float .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCellAngle> a ns1:SimulationCellAngle ;
+    ns1:hasAngle_alpha "90.0"^^xsd:float ;
+    ns1:hasAngle_beta "90.0"^^xsd:float ;
+    ns1:hasAngle_gamma "90.0"^^xsd:float .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCellLength> a ns1:SimulationCellLength ;
+    ns1:hasLength_x "28.700000000000003"^^xsd:float ;
+    ns1:hasLength_y "28.700000000000003"^^xsd:float ;
+    ns1:hasLength_z "28.700000000000003"^^xsd:float .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCellVector_1> a ns1:SimulationCellVector ;
+    ns1:hasComponent_x "28.700000000000003"^^xsd:float ;
+    ns1:hasComponent_y "0.0"^^xsd:float ;
+    ns1:hasComponent_z "0.0"^^xsd:float .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCellVector_2> a ns1:SimulationCellVector ;
+    ns1:hasComponent_x "0.0"^^xsd:float ;
+    ns1:hasComponent_y "28.700000000000003"^^xsd:float ;
+    ns1:hasComponent_z "0.0"^^xsd:float .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_SimulationCellVector_3> a ns1:SimulationCellVector ;
+    ns1:hasComponent_x "0.0"^^xsd:float ;
+    ns1:hasComponent_y "0.0"^^xsd:float ;
+    ns1:hasComponent_z "28.700000000000003"^^xsd:float .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_Species> a ns1:AtomAttribute ;
+    ns1:hasIdentifier "8fa9010d-ba41-42e3-a27e-155a743ee45a"^^xsd:string ;
+    ns1:hasName "Species"^^xsd:string ;
+    ns1:hasPath "lattice/bcc/Fe/defect/vacancy/initial/64766d67-70fc-40a0-96b7-29d47ae4ac1e.json"^^xsd:string .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_UnitCell> a ns1:UnitCell ;
+    ns1:hasAngle <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_LatticeAngle> ;
+    ns1:hasBravaisLattice <https://www.wikidata.org/wiki/Q851536> ;
+    ns1:hasLatticeParameter <sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_LatticeParameter> .
+
+<sample:64766d67-70fc-40a0-96b7-29d47ae4ac1e_Vacancy> a ns2:Vacancy .
+
+ns1:Angle ns1:hasUnit <http://qudt.org/vocab/unit/DEG> .
+
+ns1:Length ns1:hasUnit <http://qudt.org/vocab/unit/ANGSTROM> .
+
+ns1:Vector ns1:hasUnit <http://qudt.org/vocab/unit/ANGSTROM> .
+
+ns1:SimulationCellVector rdfs:subClassOf ns1:Vector .
+
