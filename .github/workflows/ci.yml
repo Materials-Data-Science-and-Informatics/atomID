@@ -65,7 +65,7 @@ jobs:
           cache: "poetry"
       - if: runner.os == 'Linux'
         run:  |
-              sudo apt-get update && apt-get install libgl1
+              sudo  apt-get install -y libgl1
       - name: Check that tests complete without errors
         run: |
           poetry install
