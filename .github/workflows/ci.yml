@@ -65,7 +65,7 @@ jobs:
           cache: "poetry"
       - if: runner.os == 'Linux'
         run:  |
-              sudo  apt-get install -y ffmpeg libsm6 libxext6
+          sudo apt update && sudo apt install -y libegl1-mesa-dev
       - name: Check that tests complete without errors
         run: |
           poetry install
