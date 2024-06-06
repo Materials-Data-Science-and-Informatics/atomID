@@ -13,8 +13,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-      - name: Install pytest
-        run: pip install pytest
+      - name: Install pytest and pytest-cov
+        run: pip install pytest pytest-cov
       - name: Check coverage of tests is at least 95%
         run: pytest --cov  --cov-report term-missing --cov-fail-under=95 src/atomid tests/
 
