@@ -155,16 +155,13 @@ class AnnotateCrystal:
         (burgers_vectors, lengths) = identify_dislocations(self.ovito_pipeline)
 
         if len(burgers_vectors) == 0:
-            return None
+            return None, None
 
         return burgers_vectors, lengths
 
     def identify_grains(self) -> tuple[list, list]:
         """Identify grains in the crystal structure."""
         orientations, angles = identify_grain_orientations(self.ovito_pipeline)
-
-        if len(orientations) == 0:
-            return None
 
         return orientations, angles
 
