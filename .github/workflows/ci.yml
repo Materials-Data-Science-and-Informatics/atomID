@@ -1,12 +1,4 @@
 name: CI
-# Main CI pipeline of the repository.
-#
-# Overview:
-# Lint --> test doc build -\
-#      \-> test code      ---> deploy docs (*) -> release (**)
-#
-#  (*): only on push of primary branches + release tags
-# (**): only for release version tags (vX.Y.Z)
 
 on:
   push:
