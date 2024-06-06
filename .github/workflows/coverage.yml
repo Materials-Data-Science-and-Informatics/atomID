@@ -16,7 +16,7 @@ jobs:
       - name: Install pytest
         run: pip install pytest
       - name: Check coverage of tests is at least 95%
-        run: pytest --cov src/atomid --cov-report term-missing --cov-fail-under=95
+        run: pytest --cov  --cov-report term-missing --cov-fail-under=95 src/atomid tests/
 
       # Following not used currently
       # - name: Build coverage file
