@@ -70,19 +70,35 @@ def compare_graphs(current_filepath: str, reference_filepath: str) -> tuple[bool
 
 
 def handle_graph_differences(in_first: Graph, in_second: Graph) -> list:
-    """Handle the differences found in graph comparison."""
+    """
+    Handle the differences found in graph comparison.
+
+    This function compares two RDF graphs and identifies differences.
+
+    Args:
+        in_first (Graph): The first RDF graph.
+        in_second (Graph): The second RDF graph.
+
+    Returns
+        list: A list of differences found between the two graphs.
+    """
     compare_results = []
-    for s, p, o in in_first:
-        if "hasPath" in str(p) or "hasIdentifier" in str(p):
+
+    for subject, predicate, obj in in_first:
+        if "hasPath" in str(predicate) or "hasIdentifier" in str(predicate):
             continue  # Skip known irrelevant differences
 
-        query = f"SELECT ?object WHERE {{ <{s}> <{p}> ?object .}}"
+        query = f"SELECT ?object WHERE {{ <{subject}> <{predicate}> ?object .}}"
         results = in_second.query(query)
+
         if not results:
-            compare_results.append(handle_no_matches(s, p, in_second))
+            compare_results.append(handle_no_matches(subject, predicate, in_second))
         else:
-            compare_results.append(handle_result_differences(results, o, s, p))
-    return [res for res in compare_results if res]  # Filter out None results
+            compare_results.append(
+                handle_result_differences(results, obj, subject, predicate)
+            )
+
+    return [result for result in compare_results if result]
 
 
 def handle_no_matches(s: URIRef, p: URIRef, in_second: Graph) -> str:
@@ -107,14 +123,5 @@ def handle_result_differences(
                 return f"Values differ significantly for: {s}, {p}"
         except ValueError:
             return f"Non-numeric comparison for: {s}, {p}\nOriginal: {original_object}, Found: {row.object}"
-    return f"No significant differences for: {s}, {p}"
 
-
-if __name__ == "__main__":
-    test_path = "/Users/ninadbhat/hida/atomID/Al_sub.ttl"
-    ref_path = "/Users/ninadbhat/hida/atomID/tests/data/fcc/Al/defect/substitution/initial/Al_substitution.ttl"
-    result, differences = compare_graphs(test_path, ref_path)
-    if result is False:
-        print(differences)
-
-    assert result
+    return ""

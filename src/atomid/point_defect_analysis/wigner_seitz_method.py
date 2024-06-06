@@ -3,6 +3,7 @@
 from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
+from annoy import AnnoyIndex
 from sklearn.neighbors import KDTree
 
 
@@ -39,6 +40,7 @@ def analyze_defects(
     atom_position_count = np.zeros(len(reference_array))
     substitution_count = np.zeros(len(reference_array))
     index_finder = create_index_finder(reference_array, method)
+
     if species_ref is not None and species_actual is not None:
         identify_substitution = True
     else:
@@ -74,8 +76,6 @@ def create_index_finder(
     A function that takes an actual position and returns the index of the nearest reference position.
     """
     if method == "annoy":
-        from annoy import AnnoyIndex
-
         t = AnnoyIndex(len(reference_array[0]), "euclidean")
         for i, ref in enumerate(reference_array):
             t.add_item(i, ref)
@@ -126,15 +126,15 @@ def calculate_defects(
     ]
 
     return {
-        "Vacancies": {
+        "vacancies": {
             "count": len(vacancies),
             "fraction": len(vacancies) / len(reference_array),
         },
-        "Interstitials": {
+        "interstitials": {
             "count": len(interstitials),
             "fraction": len(interstitials) / len(reference_array),
         },
-        "Substitutions": {
+        "substitutions": {
             "count": len(substitutions) - len(interstitials),
             "fraction": (len(substitutions) - len(interstitials))
             / len(reference_array),

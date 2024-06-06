@@ -23,7 +23,9 @@ class AnnotateCrystal:
         self.kg = ardf.KnowledgeGraph()
         self.ase_crystal = None
 
-    def read_crystal_structure_file(self, data_file: str, format: str) -> None:
+    def read_crystal_structure_file(
+        self, data_file: str, format: str, **kwargs: dict[str, str]
+    ) -> None:
         """Read the crystal structure file.
 
         Parameters
@@ -33,7 +35,7 @@ class AnnotateCrystal:
         format : str
             The format of the file. If None, the format is guessed from the file extension
         """
-        self.ase_crystal = ase_read(data_file, format=format)
+        self.ase_crystal = ase_read(data_file, format=format, **kwargs)
         kg = ardf.KnowledgeGraph()
 
         crystal_structure = ardf.System.read.file(
@@ -107,15 +109,13 @@ class AnnotateCrystal:
                 lattice=crystal_type,
                 lattice_constant=lattice_constants,
             )
-        else:
-            self.system = None
-            self.kg = ardf.KnowledgeGraph()
-            self.system = ardf.System.read.file(
-                self.ase_crystal, format="ase", graph=self.kg
-            )
 
     def identify_defects(
-        self, reference_data_file: str, ref_format: str, method: Optional[str] = None
+        self,
+        reference_data_file: str,
+        ref_format: str,
+        method: Optional[str] = None,
+        **kwargs: dict[str, str],
     ) -> dict:
         """Identify defects in the crystal structure using the reference data file.
 
@@ -132,7 +132,8 @@ class AnnotateCrystal:
             A dictionary containing the vacancy and interstitial defects.
         """
         actual_positions = self.system.atoms.positions
-        ref_ase = ase_read(reference_data_file, format=ref_format)
+
+        ref_ase = ase_read(reference_data_file, format=ref_format, **kwargs)
         ref_positions = ref_ase.positions
         species_reference = ref_ase.get_chemical_symbols()
         species_actual = self.system.atoms["species"]
@@ -156,13 +157,15 @@ class AnnotateCrystal:
             The name of the file to read
         ref_format : str
             The format of the file. If None, the format is guessed from the file extension
+        method : str
+            The method to use for defect identification
 
         """
         defects = self.identify_defects(reference_data_file, ref_format, method)
 
-        vacancies = defects.get("Vacancies", {"count": 0, "fraction": 0})
-        interstitials = defects.get("Interstitials", {"count": 0, "fraction": 0})
-        substitutions = defects.get("Substitutions", {"count": 0, "fraction": 0})
+        vacancies = defects.get("vacancies", {"count": 0, "fraction": 0})
+        interstitials = defects.get("interstitials", {"count": 0, "fraction": 0})
+        substitutions = defects.get("substitutions", {"count": 0, "fraction": 0})
         if vacancies["count"] > 0:
             self.system.add_vacancy(
                 concentration=vacancies["fraction"], number=vacancies["count"]
