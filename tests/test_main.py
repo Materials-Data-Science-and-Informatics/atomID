@@ -70,7 +70,7 @@ class TestAnnotateCrystal:
         annotate_crystal.read_crystal_structure_file(
             sample_crystal_file, format="vasp"
         )  # Adjust format if needed
-        defects = annotate_crystal.identify_defects(
+        defects = annotate_crystal.identify_point_defects(
             reference_crystal_file, ref_format="vasp"
         )  # Adjust format if needed
 
@@ -88,7 +88,7 @@ class TestAnnotateCrystal:
         """Test writing the defects to a file."""
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(sample_crystal_file, format="vasp")
-        annotate_crystal.identify_defects(reference_crystal_file, ref_format="vasp")
+        annotate_crystal.identify_point_defects(reference_crystal_file, ref_format="vasp")
 
         annotate_crystal.write_to_file(f"{tmp_path}/annotated_output.ttl", "ttl")
 
@@ -103,7 +103,7 @@ class TestAnnotateCrystal:
         """Test the output of the annotation."""
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(sample_crystal_file, format="vasp")
-        annotate_crystal.annotate_defects(reference_crystal_file, ref_format="vasp")
+        annotate_crystal.annotate_point_defects(reference_crystal_file, ref_format="vasp")
         annotate_crystal.write_to_file(f"{tmp_path}/annotated_output.ttl", "ttl")
 
         assert os.path.exists(f"{tmp_path}/annotated_output.ttl")
