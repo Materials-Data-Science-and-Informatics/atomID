@@ -2,6 +2,9 @@
 
 Most important changes in each released version.
 
+## v0.3.8
+* Add tests for atomid package.
+
 ## v0.3.7
 
 * Add documentation and set up mkdocs.
