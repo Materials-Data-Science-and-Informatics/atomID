@@ -10,12 +10,27 @@ from atomid.point_defect_analysis.wigner_seitz_method import (
 
 @pytest.fixture
 def reference_array() -> np.ndarray:
-    return np.array([[0, 0], [1, 1], [2, 2], [3, 3]])
+    return np.array([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0], [3.0, 3.0]])
 
 
 def test_analyze_defects_vacacy() -> None:
-    actual_position = [(0, 0, 0), (2.1, 2.1, 2.1), (3, 3, 3), (4, 4, 4)]
-    reference_position = [(0, 0, 0), (1, 1, 1), (2, 2, 2), (3, 3, 3), (4, 4, 4)]
+    actual_position = [
+        (0.0, 0.0, 0.0),
+        (2.1, 2.1, 2.1),
+        (3.0, 3.0, 3.0),
+        (4.0, 4.0, 4.0),
+    ]
+    reference_position = [
+        (0.0, 0.0, 0.0),
+        (1.0, 1.0, 1.0),
+        (2.0, 2.0, 2.0),
+        (3.0, 3.0, 3.0),
+        (
+            4.0,
+            4.0,
+            4.0,
+        ),
+    ]
 
     defects = analyze_defects(
         reference_positions=reference_position, actual_positions=actual_position
@@ -26,8 +41,19 @@ def test_analyze_defects_vacacy() -> None:
 
 
 def test_analyze_defects_interstitial() -> None:
-    actual_position = [(0, 0, 0), (1, 1, 1), (1.1, 1.1, 1.1), (2, 2, 2), (4, 4, 4)]
-    reference_position = [(0, 0, 0), (1, 1, 1), (2, 2, 2), (3, 3, 3)]
+    actual_position = [
+        (0.0, 0.0, 0.0),
+        (1.0, 1.0, 1.0),
+        (1.1, 1.1, 1.1),
+        (2.0, 2.0, 2.0),
+        (4.0, 4.0, 4.0),
+    ]
+    reference_position = [
+        (0.0, 0.0, 0.0),
+        (1.0, 1.0, 1.0),
+        (2.0, 2.0, 2.0),
+        (3.0, 3.0, 3.0),
+    ]
 
     defects = analyze_defects(
         reference_positions=reference_position, actual_positions=actual_position
@@ -37,9 +63,19 @@ def test_analyze_defects_interstitial() -> None:
 
 
 def test_analyze_defects_substitution() -> None:
-    actual_positions = [(0, 0, 0), (1, 1, 1), (2, 2, 2), (4, 4, 4)]
-    reference_positions = [(0, 0, 0), (1, 1, 1), (2, 2, 2), (3, 3, 3)]
+    actual_positions = [
+        (0.0, 0.0, 0.0),
+        (1.0, 1.0, 1.0),
+        (2.0, 2.0, 2.0),
+        (3.0, 3.0, 3.0),
+    ]
 
+    reference_positions = [
+        (0.0, 0.0, 0.0),
+        (1.0, 1.0, 1.0),
+        (2.0, 2.0, 2.0),
+        (3.0, 3.0, 3.0),
+    ]
     species_ref = ["H", "He", "Li", "Be"]
     species_actual = ["H", "He", "Li", "B"]
 

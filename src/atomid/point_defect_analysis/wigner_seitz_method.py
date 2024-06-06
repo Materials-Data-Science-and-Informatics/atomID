@@ -1,7 +1,6 @@
 """Wigner-Seitz method for point defect analysis."""
 
-from numbers import Real
-from typing import Callable, Dict, Optional, Sequence, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 from annoy import AnnoyIndex
@@ -9,12 +8,12 @@ from sklearn.neighbors import KDTree
 
 
 def analyze_defects(
-    reference_positions: Sequence[Tuple[Real, Real, Real]],
-    actual_positions: Sequence[Tuple[Real, Real, Real]],
-    species_ref: Optional[Sequence[str]] = None,
-    species_actual: Optional[Sequence[str]] = None,
+    reference_positions: List[Tuple[float, float, float]],
+    actual_positions: List[Tuple[float, float, float]],
+    species_ref: Optional[List[str]] = None,
+    species_actual: Optional[List[str]] = None,
     method: Optional[str] = None,
-) -> Dict[str, Dict[str, Real]]:
+) -> Dict[str, Dict[str, float]]:
     """Analyze the lattice for vacancy, interstitial, and substitution defects.
 
     Parameters
