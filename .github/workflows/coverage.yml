@@ -18,6 +18,9 @@ jobs:
         run: pipx install poetry
       - name: Install dependencies
         run: poetry install
+      - if: runner.os == 'Linux'
+        run:  |
+          sudo apt update && sudo apt install -y libegl1-mesa-dev
       - name: Check coverage of tests is at least 95%
         run: poetry run pytest --cov  --cov-report term-missing --cov-fail-under=95 src/atomid tests/
 
