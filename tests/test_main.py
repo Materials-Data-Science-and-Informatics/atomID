@@ -75,9 +75,9 @@ class TestAnnotateCrystal:
         )  # Adjust format if needed
 
         assert isinstance(defects, dict)
-        assert "Vacancies" in defects
-        assert "Interstitials" in defects
-        assert "Substitutions" in defects
+        assert "vacancies" in defects
+        assert "interstitials" in defects
+        assert "substitutions" in defects
 
     @pytest.mark.parametrize(
         "sample_crystal_file, reference_crystal_file", test_data_combinations
@@ -103,8 +103,7 @@ class TestAnnotateCrystal:
         """Test the output of the annotation."""
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(sample_crystal_file, format="vasp")
-        annotate_crystal.identify_defects(reference_crystal_file, ref_format="vasp")
-
+        annotate_crystal.annotate_defects(reference_crystal_file, ref_format="vasp")
         annotate_crystal.write_to_file(f"{tmp_path}/annotated_output.ttl", "ttl")
 
         assert os.path.exists(f"{tmp_path}/annotated_output.ttl")
