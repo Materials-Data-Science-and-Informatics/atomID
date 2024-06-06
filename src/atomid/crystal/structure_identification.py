@@ -1,11 +1,9 @@
 """Crystal structure identification and lattice parameter calculation."""
 
-import logging
 from math import sqrt
 from typing import Tuple
 
 import numpy as np
-from atomrdf import System
 
 
 def get_crsytal_structure_from_id(id: int) -> str:
@@ -43,77 +41,6 @@ def analyse_polyhedral_template_matching_data(
     unique, counts = np.unique(atoms_structure_type, return_counts=True)
     structure_id = unique[np.argmax(counts)]
     return structure_id, get_crsytal_structure_from_id(structure_id)
-
-
-def get_crystal_structure_using_cna(pyscal_system: System) -> str:
-    """
-    Get the crystal structure using adaptive common neighbour analysis.
-
-    Parameters
-    ----------
-    pyscal_system : pyscal.System
-        The pyscal system object.
-
-    Returns
-    -------
-    str
-        The identified crystal structure type.
-    """
-    cna_results = pyscal_system.analyze.common_neighbor_analysis()
-    logging.info("Adaptive common neighbour analysis results: %s", cna_results)
-
-    # Find the most frequent crystal structure from CNA results.
-    crystal_type = max(cna_results, key=cna_results.get)
-
-    if crystal_type == "others":
-        # Further analyse if the crystal type could be diamond related.
-        crystal_type = analyse_diamond_structures(pyscal_system)
-
-    logging.info("Selected crystal structure type: %s", crystal_type)
-    return str(crystal_type)
-
-
-def analyse_diamond_structures(pyscal_system: System) -> str:
-    """
-    Analyse diamond structures and identify the dominant type if any.
-
-    Parameters
-    ----------
-    pyscal_system : pyscal.System
-        The pyscal system object.
-
-    Returns
-    -------
-    str
-        The dominant diamond structure type or 'others' if none found.
-    """
-    diamond_results = pyscal_system.analyze.diamond_structure()
-    logging.info("Initial diamond structure analysis results: %s", diamond_results)
-
-    # Aggregate the diamond structure counts.
-    diamond_results["cubic diamond"] = sum(
-        diamond_results.get(key, 0)
-        for key in ["cubic diamond", "cubic diamond 1NN", "cubic diamond 2NN"]
-    )
-    diamond_results["hex diamond"] = sum(
-        diamond_results.get(key, 0)
-        for key in ["hex diamond", "hex diamond 1NN", "hex diamond 2NN"]
-    )
-
-    # Clean up the dictionary.
-    for key in [
-        "cubic diamond 1NN",
-        "cubic diamond 2NN",
-        "hex diamond 1NN",
-        "hex diamond 2NN",
-    ]:
-        diamond_results.pop(key, None)
-
-    logging.info("Consolidated diamond structure analysis results: %s", diamond_results)
-
-    # Choose the most frequent diamond structure.
-    diamond_type = max(diamond_results, key=diamond_results.get, default="others")
-    return str(diamond_type)
 
 
 def find_lattice_parameter(
