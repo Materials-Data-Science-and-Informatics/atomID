@@ -1,7 +1,10 @@
+"""Dislocation extraction module."""
+
 from ovito.modifiers import DislocationAnalysisModifier
+from ovito.pipeline import Pipeline
 
 
-def identify_dislocations(data_pipeline) -> None:
+def identify_dislocations(data_pipeline: Pipeline) -> tuple[list, list]:
     """Identify dislocations in the crystal structure.
 
     Parameters

@@ -6,14 +6,17 @@ import atomrdf as ardf
 from ase.io import read as ase_read
 from ovito.data import DataCollection
 from ovito.io import import_file
-from ovito.modifiers import PolyhedralTemplateMatchingModifier, DislocationAnalysisModifier
+from ovito.modifiers import (
+    PolyhedralTemplateMatchingModifier,
+)
 
 from atomid.crystal.structure_identification import (
     analyse_polyhedral_template_matching_data,
     find_lattice_parameter,
 )
-from atomid.point_defect_analysis.wigner_seitz_method import analyze_defects
 from atomid.line_defect_analysis.dislocation_extraction import identify_dislocations
+from atomid.plane_defect_analysis.grain_segmentation import identify_grain_orientations
+from atomid.point_defect_analysis.wigner_seitz_method import analyze_defects
 
 
 class AnnotateCrystal:
@@ -62,7 +65,7 @@ class AnnotateCrystal:
             The polyhedral template matching data.
         """
         polyhedral_modifier = PolyhedralTemplateMatchingModifier(
-            output_interatomic_distance=True
+            output_interatomic_distance=True, output_orientation=True
         )
 
         polyhedral_modifier.structures[
@@ -147,15 +150,23 @@ class AnnotateCrystal:
         )
         return defects
 
-    def identify_line_defects(self) -> None:
+    def identify_line_defects(self) -> tuple[list, list]:
         """Identify line defects in the crystal structure."""
         (burgers_vectors, lengths) = identify_dislocations(self.ovito_pipeline)
-        
+
         if len(burgers_vectors) == 0:
             return None
-        
+
         return burgers_vectors, lengths
 
+    def identify_grains(self) -> tuple[list, list]:
+        """Identify grains in the crystal structure."""
+        orientations, angles = identify_grain_orientations(self.ovito_pipeline)
+
+        if len(orientations) == 0:
+            return None
+
+        return orientations, angles
 
     def annotate_point_defects(
         self, reference_data_file: str, ref_format: str, method: Optional[str] = None
