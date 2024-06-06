@@ -10,14 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install poetry
-        run: pipx install poetry
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-      - name: Install poe, pre-commit and safety
-        run: pip install poethepoet pre-commit safety pytest
-      - name: Check that all static analysis tools run without errors
+      - name: Install pytest
+        run: pip install pytest
+      - name: Check coverage of tests is at least 95%
         run: pytest --cov src/atomid --cov-report term-missing --cov-fail-under=95
 
       # Following not used currently
