@@ -18,7 +18,7 @@ jobs:
       - name: Install poe, pre-commit and safety
         run: pip install poethepoet pre-commit safety pytest
       - name: Check that all static analysis tools run without errors
-        run: pre-commit run pytest-cov-src-atomid --all-files
+        run: pytest --cov src/atomid --cov-report term-missing --cov-fail-under=95
 
       # Following not used currently
       # - name: Build coverage file
