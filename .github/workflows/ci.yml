@@ -1,19 +1,11 @@
 name: CI
-# Main CI pipeline of the repository.
-#
-# Overview:
-# Lint --> test doc build -\
-#      \-> test code      ---> deploy docs (*) -> release (**)
-#
-#  (*): only on push of primary branches + release tags
-# (**): only for release version tags (vX.Y.Z)
+
 
 on:
   push:
-    branches: [main, dev]
-    tags: ["v*.*.*"]
+    branches: [ main ]
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
+    branches: [ main ]
 
 jobs:
   lint:

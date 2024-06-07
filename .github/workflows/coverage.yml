@@ -2,51 +2,51 @@ name: Coverage
 
 on:
   push:
-    branches: [main, dev]
-    tags: ["v*.*.*"]
+    branches: [ main ]
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
-
+    branches: [ main ]
 jobs:
   coverage:
-      runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v2
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.10
-
+          python-version: "3.10"
+      - name: Install poetry
+        run: pipx install poetry
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8 pytest pytest-cov
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        run: poetry install
+      - if: runner.os == 'Linux'
+        run:  |
+          sudo apt update && sudo apt install -y libegl1-mesa-dev
+      - name: Check coverage of tests is at least 95%
+        run: poetry run pytest --cov  --cov-report term-missing --cov-fail-under=95 src/atomid tests/
 
-      - name: Build coverage file
-        run: |
-          pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=src/atomid tests/ | tee pytest-coverage.txt
+      # Following not used currently
+      # - name: Build coverage file
+      #   run: |
+      #     poetry run pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=src/atomid tests/ | tee pytest-coverage.txt
+      # - name: Pytest coverage comment
+      #   uses: MishaKav/pytest-coverage-comment@main
+      #   with:
+      #     pytest-coverage-path: ./pytest-coverage.txt
+      #     junitxml-path: ./pytest.xml
 
-      - name: Pytest coverage comment
-        uses: MishaKav/pytest-coverage-comment@main
-        with:
-          pytest-coverage-path: ./pytest-coverage.txt
-          junitxml-path: ./pytest.xml
+      # - name: Check the output coverage
+      #   run: |
+      #     echo "Coverage Percentage - ${{ steps.coverageComment.outputs.coverage }}"
+      #     echo "Coverage Color - ${{ steps.coverageComment.outputs.color }}"
+      #     echo "Coverage Html - ${{ steps.coverageComment.outputs.coverageHtml }}"
 
-      - name: Check the output coverage
-        run: |
-          echo "Coverage Percentage - ${{ steps.coverageComment.outputs.coverage }}"
-          echo "Coverage Color - ${{ steps.coverageComment.outputs.color }}"
-          echo "Coverage Html - ${{ steps.coverageComment.outputs.coverageHtml }}"
+      #     echo "Coverage Warnings - ${{ steps.coverageComment.outputs.warnings }}"
 
-          echo "Coverage Warnings - ${{ steps.coverageComment.outputs.warnings }}"
+      #     echo "Coverage Errors - ${{ steps.coverageComment.outputs.errors }}"
+      #     echo "Coverage Failures - ${{ steps.coverageComment.outputs.failures }}"
+      #     echo "Coverage Skipped - ${{ steps.coverageComment.outputs.skipped }}"
+      #     echo "Coverage Tests - ${{ steps.coverageComment.outputs.tests }}"
+      #     echo "Coverage Time - ${{ steps.coverageComment.outputs.time }}"
 
-          echo "Coverage Errors - ${{ steps.coverageComment.outputs.errors }}"
-          echo "Coverage Failures - ${{ steps.coverageComment.outputs.failures }}"
-          echo "Coverage Skipped - ${{ steps.coverageComment.outputs.skipped }}"
-          echo "Coverage Tests - ${{ steps.coverageComment.outputs.tests }}"
-          echo "Coverage Time - ${{ steps.coverageComment.outputs.time }}"
-
-          echo "Not Success Test Info - ${{ steps.coverageComment.outputs.notSuccessTestInfo }}"
+      #     echo "Not Success Test Info - ${{ steps.coverageComment.outputs.notSuccessTestInfo }}"
 
