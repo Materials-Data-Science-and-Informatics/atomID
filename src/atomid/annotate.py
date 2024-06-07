@@ -22,10 +22,15 @@ from atomid.point_defect_analysis.wigner_seitz_method import analyze_defects
 class AnnotateCrystal:
     """Annotate crystal object."""
 
-    def __init__(self) -> None:
-        self.system = ardf.System()
-        self.kg = ardf.KnowledgeGraph()
-        self.ase_crystal = None
+    def __init__(
+        self,
+        data_file: Optional[str] = None,
+        format: Optional[str] = None,
+        **kwargs: dict[str, str],
+    ) -> None:
+        """Initialize the AnnotateCrystal object."""
+        if data_file is not None and format is not None:
+            self.read_crystal_structure_file(data_file, format, **kwargs)
 
     def read_crystal_structure_file(
         self, data_file: str, format: str, **kwargs: dict[str, str]
