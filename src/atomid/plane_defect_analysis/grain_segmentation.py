@@ -24,14 +24,14 @@ def identify_grain_orientations(input_pipeline: Pipeline) -> tuple:
     grain_data = input_pipeline.compute()
 
     orientations = grain_data.tables["grains"]["Orientation"]
-    axes, angles = format_grain_orientations(orientations)
+    axes, angles = get_grain_orientations(orientations)
 
     return axes, angles
 
 
-def format_grain_orientations(orientations: np.ndarray) -> tuple:
+def get_grain_orientations(orientations: np.ndarray) -> tuple:
     """
-    Analyze grain orientations from quaternion representations.
+    Get grain orientations from quaternion representations.
 
     Parameters
     ----------
