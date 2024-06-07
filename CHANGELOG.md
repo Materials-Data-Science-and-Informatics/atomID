@@ -2,7 +2,12 @@
 
 Most important changes in each released version.
 
+## v0.3.9
+
+* Add Dislocation identification and Grain identification.
+
 ## v0.3.8
+
 * Add tests for atomid package.
 
 ## v0.3.7
