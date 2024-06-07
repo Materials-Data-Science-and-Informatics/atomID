@@ -7,8 +7,8 @@ from atomid.annotate import AnnotateCrystal
 from utils.compare_rdf import compare_graphs
 
 
-class TestAnnotateCrystal:
-    """Tests for the AnnotateCrystal class."""
+class TestAnnotatePointDefects:
+    """Tests for the AnnotateCrystal class for Point defects."""
 
     testing_dict = {
         "fcc": "Al",
@@ -70,7 +70,7 @@ class TestAnnotateCrystal:
         annotate_crystal.read_crystal_structure_file(
             sample_crystal_file, format="vasp"
         )  # Adjust format if needed
-        defects = annotate_crystal.identify_defects(
+        defects = annotate_crystal.identify_point_defects(
             reference_crystal_file, ref_format="vasp"
         )  # Adjust format if needed
 
@@ -88,7 +88,9 @@ class TestAnnotateCrystal:
         """Test writing the defects to a file."""
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(sample_crystal_file, format="vasp")
-        annotate_crystal.identify_defects(reference_crystal_file, ref_format="vasp")
+        annotate_crystal.identify_point_defects(
+            reference_crystal_file, ref_format="vasp"
+        )
 
         annotate_crystal.write_to_file(f"{tmp_path}/annotated_output.ttl", "ttl")
 
@@ -103,7 +105,9 @@ class TestAnnotateCrystal:
         """Test the output of the annotation."""
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(sample_crystal_file, format="vasp")
-        annotate_crystal.annotate_defects(reference_crystal_file, ref_format="vasp")
+        annotate_crystal.annotate_point_defects(
+            reference_crystal_file, ref_format="vasp"
+        )
         annotate_crystal.write_to_file(f"{tmp_path}/annotated_output.ttl", "ttl")
 
         assert os.path.exists(f"{tmp_path}/annotated_output.ttl")
@@ -117,6 +121,47 @@ class TestAnnotateCrystal:
             print(differences)
 
         assert result
+
+
+class TestAnnotateGrains:
+    """Tests for the AnnotateCrystal class for Grain boundaries."""
+
+    def test_identify_grain_boundary(self) -> None:
+        grain_boundary_path = "tests/data/grain_boundary/fe_grain_boundary.poscar"
+
+        annotate_crystal = AnnotateCrystal()
+        annotate_crystal.read_crystal_structure_file(grain_boundary_path, format="vasp")
+        annotate_crystal.annotate_crystal_structure()
+        grains, angles = annotate_crystal.identify_grains()
+
+        assert grains is not None
+        assert angles is not None
+
+
+class TestAnnotateDislocations:
+    """Tests for the AnnotateCrystal class for Line defects."""
+
+    def test_identify_dislocations(self) -> None:
+        dislocation_path = "tests/data/dislocation/Al_edge.cfg"
+
+        annotate_crystal = AnnotateCrystal()
+        annotate_crystal.read_crystal_structure_file(dislocation_path, format="cfg")
+        annotate_crystal.annotate_crystal_structure()
+        burgers_vectors, lengths = annotate_crystal.identify_line_defects()
+
+        assert burgers_vectors is not None
+        assert lengths is not None
+
+    def test_identify_dislocations_none(self) -> None:
+        dislocation_path = "tests/data/fcc/Al/no_defect/initial/Al.poscar"
+
+        annotate_crystal = AnnotateCrystal()
+        annotate_crystal.read_crystal_structure_file(dislocation_path, format="vasp")
+        annotate_crystal.annotate_crystal_structure()
+        burgers_vectors, lengths = annotate_crystal.identify_line_defects()
+
+        assert burgers_vectors is None
+        assert lengths is None
 
 
 if __name__ == "__main__":
