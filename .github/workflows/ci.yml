@@ -51,6 +51,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: Install poetry
         run: pipx install poetry
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
@@ -61,4 +65,5 @@ jobs:
       - name: Check that tests complete without errors
         run: |
           poetry install
+          conda install --strict-channel-priority -c https://conda.ovito.org -c conda-forge ovito=3.10.6
           poetry run poe test

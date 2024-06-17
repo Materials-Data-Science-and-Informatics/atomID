@@ -8,11 +8,10 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.9, <3.12"
 rdflib = "^7.0.0"
-atomrdf = {git = "https://github.com/pyscal/atomRDF.git"}
+atomrdf = "0.8.1"
 annoy = "^1.17.3"
 scikit-learn = "^1.4.2"
 pyscal3 = {git = "https://github.com/pyscal/pyscal3"}
-ovito = "^3.10.6"
 pytest-cov = "^5.0.0"
 
 [tool.poetry.group.dev.dependencies]
