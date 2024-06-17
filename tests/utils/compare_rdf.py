@@ -63,7 +63,7 @@ def compare_graphs(current_filepath: str, reference_filepath: str) -> tuple[bool
     substituted_graph = Graph()
     substituted_graph.parse(data=filedata, format="turtle")
 
-    in_both, in_first, in_second = graph_difference(substituted_graph, reference_graph)
+    _, in_first, in_second = graph_difference(substituted_graph, reference_graph)
     differences = handle_graph_differences(in_first, in_second)
 
     return len(differences) == 0, differences
@@ -120,7 +120,7 @@ def handle_result_differences(
                 abs(float(row.object) - float(original_object)) / float(row.object)
                 > 0.1
             ):
-                return f"Values differ significantly for: {s}, {p}"
+                return f"Values differ significantly for: {s}, {p}: {original_object}, {row.object}"
         except ValueError:
             return f"Non-numeric comparison for: {s}, {p}\nOriginal: {original_object}, Found: {row.object}"
 

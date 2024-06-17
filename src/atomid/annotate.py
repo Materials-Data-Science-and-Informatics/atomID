@@ -73,10 +73,7 @@ class AnnotateCrystal:
         self.system = crystal_structure
 
     def validate_parameters_for_crystal_annotation(self) -> None:
-        if (
-            hasattr(self, "lattice_constants") is False
-            or self.lattice_constants is None
-        ):
+        if hasattr(self, "lattice_constant") is False or self.lattice_constant is None:
             self._raise_error(
                 "Lattice constants have not been set.",
                 "Please run the 'identify_crystal_structure' method first or"
@@ -148,7 +145,7 @@ class AnnotateCrystal:
 
         if crystal_type != "other":
             interatomic_distance = structure_data.particles["Interatomic Distance"][...]  # noqa
-            self.lattice_constants = find_lattice_parameter(
+            self.lattice_constant = find_lattice_parameter(
                 interatomic_distance, structure_type_atoms, int(structure_id)
             )
         else:
@@ -156,7 +153,7 @@ class AnnotateCrystal:
             # and set the lattice constant can not be determined
             print("\033[91mCrystal structure could not be identified.\033[0m")
             print("\033[91mLattice constant can not be determined.\033[0m")
-            self.lattice_constants = None
+            self.lattice_constant = None
 
     def set_lattice_constant(self, lattice_constant: float) -> None:
         """Set the lattice constant.
@@ -170,7 +167,7 @@ class AnnotateCrystal:
         -------
         None
         """
-        self.lattice_constants = lattice_constant
+        self.lattice_constant = lattice_constant
 
     def set_crystal_structure(self, crystal_type: str) -> None:
         """Set the crystal structure.
@@ -201,7 +198,7 @@ class AnnotateCrystal:
             format="ase",
             graph=self.kg,
             lattice=self.crystal_type,
-            lattice_constant=self.lattice_constants,
+            lattice_constant=self.lattice_constant,
         )
 
     def identify_point_defects(
