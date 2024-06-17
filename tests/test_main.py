@@ -56,6 +56,7 @@ class TestAnnotatePointDefects:
         annotate_crystal.read_crystal_structure_file(
             sample_crystal_file, format="vasp"
         )  # Adjust format if needed
+        annotate_crystal.identify_crystal_structure()
         annotate_crystal.annotate_crystal_structure()
 
         assert annotate_crystal.system is not None
@@ -131,6 +132,7 @@ class TestAnnotateGrains:
 
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(grain_boundary_path, format="vasp")
+        annotate_crystal.identify_crystal_structure()
         annotate_crystal.annotate_crystal_structure()
         grains, angles = annotate_crystal.identify_grains()
 
@@ -146,6 +148,7 @@ class TestAnnotateDislocations:
 
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(dislocation_path, format="cfg")
+        annotate_crystal.identify_crystal_structure()
         annotate_crystal.annotate_crystal_structure()
         burgers_vectors, lengths = annotate_crystal.identify_line_defects()
 
@@ -157,6 +160,7 @@ class TestAnnotateDislocations:
 
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(dislocation_path, format="vasp")
+        annotate_crystal.identify_crystal_structure()
         annotate_crystal.annotate_crystal_structure()
         burgers_vectors, lengths = annotate_crystal.identify_line_defects()
 
