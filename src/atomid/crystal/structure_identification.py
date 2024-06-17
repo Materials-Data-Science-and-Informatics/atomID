@@ -56,12 +56,11 @@ def find_lattice_parameter(
 
     # calculate mean of the interatomic distances
     mean_interactomic_distance = np.mean(filtered_interatomic_distance)
-
+    print(mean_interactomic_distance)
     # calculate multiplier for the lattice parameter
-
     multiplier = {
         1: sqrt(2),
-        2: sqrt(2),
+        2: 1,
         3: sqrt(4 / 3),
         4: 4 / sqrt(3),
         5: 1,
