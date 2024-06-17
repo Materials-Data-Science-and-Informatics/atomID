@@ -73,4 +73,5 @@ def find_lattice_parameter(
     lattice_parameter: float = round(
         mean_interactomic_distance * multiplier[crystal_type_id], 3
     )
+
     return lattice_parameter
