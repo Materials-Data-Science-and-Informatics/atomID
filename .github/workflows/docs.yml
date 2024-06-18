@@ -47,7 +47,8 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-
+      - name: Install project with mkdocs and plugins
+        run: poetry install --with docs
 
       - name: Check out or initialize gh-pages branch
         run: |
