@@ -29,6 +29,7 @@ jobs:
           poetry run poe docs
   deploy:
     needs: [test-build-docs]
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Install poetry
