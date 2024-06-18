@@ -7,7 +7,7 @@ from atomid.annotate import AnnotateCrystal
 from utils.compare_rdf import compare_graphs
 
 
-class TestAnnotatePointDefects:
+class TestAnnotateSystemTest:
     """Tests for the AnnotateCrystal class for Point defects."""
 
     testing_dict = {
@@ -92,7 +92,7 @@ class TestAnnotatePointDefects:
         annotate_crystal.identify_point_defects(
             reference_crystal_file, ref_format="vasp"
         )
-
+        annotate_crystal.annotate_point_defects()
         annotate_crystal.write_to_file(f"{tmp_path}/annotated_output.ttl", "ttl")
 
         assert os.path.exists(f"{tmp_path}/annotated_output.ttl")
@@ -110,9 +110,10 @@ class TestAnnotatePointDefects:
         annotate_crystal.identify_crystal_structure()
         annotate_crystal.annotate_crystal_structure()
 
-        annotate_crystal.annotate_point_defects(
+        annotate_crystal.identify_point_defects(
             reference_crystal_file, ref_format="vasp"
         )
+        annotate_crystal.annotate_point_defects()
         annotate_crystal.write_to_file(f"{tmp_path}/annotated_output.ttl", "ttl")
 
         assert os.path.exists(f"{tmp_path}/annotated_output.ttl")
@@ -126,6 +127,10 @@ class TestAnnotatePointDefects:
             print(differences)
 
         assert result
+
+
+class TestAnnotatePointDefects:
+    """Tests for the AnnotateCrystal class for Point defects."""
 
     def test_set_lattice_constant(self) -> None:
         annotate_crystal = AnnotateCrystal(
@@ -141,18 +146,59 @@ class TestAnnotatePointDefects:
         annotate_crystal.set_crystal_structure("fcc")
         assert annotate_crystal.crystal_type == "fcc"
 
-    def test_annotate_crystal_returns_error(self) -> None:
+    def test_annotate_returns_error_no_lattice_constant(self) -> None:
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(
             "tests/data/fcc/Al/no_defect/initial/Al.poscar", format="vasp"
         )
+        annotate_crystal.set_crystal_structure("fcc")
 
         with pytest.raises(ValueError):
             annotate_crystal.annotate_crystal_structure()
 
+    def test_annotate_returns_error_no_crystal_type(self) -> None:
+        annotate_crystal = AnnotateCrystal()
+        annotate_crystal.read_crystal_structure_file(
+            "tests/data/fcc/Al/no_defect/initial/Al.poscar", format="vasp"
+        )
+        annotate_crystal.set_lattice_constant(3.5)
         with pytest.raises(ValueError):
-            annotate_crystal.set_crystal_structure("other")
             annotate_crystal.annotate_crystal_structure()
+
+    def test_add_vacancy(self) -> None:
+        annotate_crystal = AnnotateCrystal()
+        annotate_crystal.read_crystal_structure_file(
+            "tests/data/fcc/Al/defect/vacancy/initial/Al_vacancy.poscar", format="vasp"
+        )
+        annotate_crystal.identify_crystal_structure()
+        annotate_crystal.annotate_crystal_structure()
+        annotate_crystal.add_vacancy_information(concentration=0.1, number=40)
+        assert annotate_crystal.defects["vacancies"]["count"] == 40
+        assert annotate_crystal.defects["vacancies"]["concentration"] == 0.1
+
+    def test_add_interstitial(self) -> None:
+        annotate_crystal = AnnotateCrystal()
+        annotate_crystal.read_crystal_structure_file(
+            "tests/data/fcc/Al/defect/interstitial/initial/Al_interstitial.poscar",
+            format="vasp",
+        )
+        annotate_crystal.identify_crystal_structure()
+        annotate_crystal.annotate_crystal_structure()
+        annotate_crystal.add_interstitial_information(concentration=0.1, number=40)
+        assert annotate_crystal.defects["interstitials"]["count"] == 40
+        assert annotate_crystal.defects["interstitials"]["concentration"] == 0.1
+
+    def test_add_substitution(self) -> None:
+        annotate_crystal = AnnotateCrystal()
+        annotate_crystal.read_crystal_structure_file(
+            "tests/data/fcc/Al/defect/substitution/initial/Al_substitution.poscar",
+            format="vasp",
+        )
+        annotate_crystal.identify_crystal_structure()
+        annotate_crystal.annotate_crystal_structure()
+        annotate_crystal.add_substitution_information(concentration=0.1, number=40)
+        assert annotate_crystal.defects["substitutions"]["count"] == 40
+        assert annotate_crystal.defects["substitutions"]["concentration"] == 0.1
 
 
 class TestAnnotateGrains:
