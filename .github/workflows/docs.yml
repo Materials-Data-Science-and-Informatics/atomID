@@ -60,6 +60,5 @@ jobs:
             git checkout --orphan gh-pages
           fi
 
-      - run: pip install mkdocs-material markdown-exec
       - run: poetry install --only docs
-      - run: mkdocs gh-deploy --force
+      - run: poetry run mkdocs gh-deploy --force
