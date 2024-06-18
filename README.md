@@ -91,7 +91,7 @@ Detailed documentation for the `atomID` package can be found in [docs](https://g
 
 # Contributing
 
-Please refer to the [CONTRIBUTING GUIDE](https://github.com/Materials-Data-Science-and-Informatics/atomID/blob/main/docs/code_of_conduct.md) on contributing to the `atomID` package.
+Please refer to the [CONTRIBUTING GUIDE](https://github.com/Materials-Data-Science-and-Informatics/atomID/blob/main/docs/contributing.md) on contributing to the `atomID` package.
 
 # Contact
 
