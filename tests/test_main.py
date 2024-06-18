@@ -129,17 +129,30 @@ class TestAnnotatePointDefects:
 
     def test_set_lattice_constant(self) -> None:
         annotate_crystal = AnnotateCrystal(
-            "tests/data/fcc/Al/no_defect/initial/Al.poscar"
+            "tests/data/fcc/Al/no_defect/initial/Al.poscar", "vasp"
         )
         annotate_crystal.set_lattice_constant(3.5)
         assert annotate_crystal.lattice_constant == 3.5
 
     def test_set_crystal_structure(self) -> None:
         annotate_crystal = AnnotateCrystal(
-            "tests/data/fcc/Al/no_defect/initial/Al.poscar"
+            "tests/data/fcc/Al/no_defect/initial/Al.poscar", "vasp"
         )
         annotate_crystal.set_crystal_structure("fcc")
         assert annotate_crystal.crystal_type == "fcc"
+
+    def test_annotate_crystal_returns_error(self) -> None:
+        annotate_crystal = AnnotateCrystal()
+        annotate_crystal.read_crystal_structure_file(
+            "tests/data/fcc/Al/no_defect/initial/Al.poscar", format="vasp"
+        )
+
+        with pytest.raises(ValueError):
+            annotate_crystal.annotate_crystal_structure()
+
+        with pytest.raises(ValueError):
+            annotate_crystal.set_crystal_structure("other")
+            annotate_crystal.annotate_crystal_structure()
 
 
 class TestAnnotateGrains:
