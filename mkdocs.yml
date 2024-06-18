@@ -14,7 +14,7 @@ watch: ["README.md"]
 nav:
   - Home:
     - Overview: index.md
-    - Changelog: changelog.md
+    - Changelog: change_log.md
     - Credits: credits.md
   - Usage:
     - Quickstart: quickstart.md
