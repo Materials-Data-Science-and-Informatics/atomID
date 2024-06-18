@@ -2,6 +2,14 @@
 
 Most important changes in each released version.
 
+## v0.3.11
+
+* Add options to manually set point defect concetration and number.
+
+## v0.3.10
+
+* Add option to manually set crystal structure parameters (lattice constant and crytal type).
+
 ## v0.3.9
 
 * Add Dislocation identification and Grain identification.
