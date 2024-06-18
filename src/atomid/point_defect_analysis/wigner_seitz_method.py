@@ -32,7 +32,7 @@ def analyze_defects(
     Returns
     -------
     dict
-        A dictionary containing the counts and fractions of vacancies, interstitials, and substitutions.
+        A dictionary containing the counts and concentration of vacancies, interstitials, and substitutions.
     """
     reference_array = np.array(reference_positions)
     actual_array = np.array(actual_positions)
@@ -93,7 +93,7 @@ def calculate_defects(
     atom_position_count: np.ndarray,
     substitution_count: np.ndarray,
 ) -> Dict:
-    """Calculate the number and fraction of vacancies, interstitials, and substitutions.
+    """Calculate the number and concentration of vacancies, interstitials, and substitutions.
 
     Parameters
     ----------
@@ -107,7 +107,7 @@ def calculate_defects(
     Returns
     -------
     dict
-        A dictionary containing the counts and fractions of vacancies, interstitials, and substitutions.
+        A dictionary containing the counts and concentration of vacancies, interstitials, and substitutions.
     """
     vacancies = [
         (i, tuple(pos))
@@ -128,15 +128,15 @@ def calculate_defects(
     return {
         "vacancies": {
             "count": len(vacancies),
-            "fraction": len(vacancies) / len(reference_array),
+            "concentration": len(vacancies) / len(reference_array),
         },
         "interstitials": {
             "count": len(interstitials),
-            "fraction": len(interstitials) / len(reference_array),
+            "concentration": len(interstitials) / len(reference_array),
         },
         "substitutions": {
             "count": len(substitutions) - len(interstitials),
-            "fraction": (len(substitutions) - len(interstitials))
+            "concentration": (len(substitutions) - len(interstitials))
             / len(reference_array),
         },
     }

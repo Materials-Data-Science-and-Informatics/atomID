@@ -37,7 +37,7 @@ def test_analyze_defects_vacacy() -> None:
     )
 
     assert defects["vacancies"]["count"] == 1
-    assert defects["vacancies"]["fraction"] == 0.2
+    assert defects["vacancies"]["concentration"] == 0.2
 
 
 def test_analyze_defects_interstitial() -> None:
@@ -59,7 +59,7 @@ def test_analyze_defects_interstitial() -> None:
         reference_positions=reference_position, actual_positions=actual_position
     )
     assert defects["interstitials"]["count"] == 1
-    assert defects["interstitials"]["fraction"] == 0.25
+    assert defects["interstitials"]["concentration"] == 0.25
 
 
 def test_analyze_defects_substitution() -> None:
@@ -83,7 +83,7 @@ def test_analyze_defects_substitution() -> None:
         reference_positions, actual_positions, species_ref, species_actual
     )
     assert defects["substitutions"]["count"] == 1
-    assert defects["substitutions"]["fraction"] == 0.25
+    assert defects["substitutions"]["concentration"] == 0.25
 
 
 def test_create_index_finder_euclidean(reference_array: np.ndarray) -> None:

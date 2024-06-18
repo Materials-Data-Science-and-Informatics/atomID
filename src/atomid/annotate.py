@@ -235,7 +235,108 @@ class AnnotateCrystal:
             species_ref=species_reference,
             species_actual=species_actual,
         )
+
+        if hasattr(self, "defects") is False:
+            self.defects = dict()
+
+        self.defects.update(defects)
+
         return defects
+
+    def add_vacancy_information(self, concentration: float, number: int) -> None:
+        """Add vacancy information to the system.
+
+        Parameters
+        ----------
+        concentration : float
+            The concentration of vacancies.
+        number : int
+            The number of vacancies.
+
+        Returns
+        -------
+        None
+        """
+        if hasattr(self, "defects") is False:
+            self.defects = {}
+
+        self.defects.update(
+            {"vacancies": {"concentration": concentration, "count": number}}
+        )
+
+    def add_interstitial_information(self, concentration: float, number: int) -> None:
+        """Add interstitial information to the system.
+
+        Parameters
+        ----------
+        concentration : float
+            The concentration of interstitials.
+        number : int
+            The number of interstitials.
+
+        Returns
+        -------
+        None
+        """
+        if hasattr(self, "defects") is False:
+            self.defects = {}
+
+        self.defects.update(
+            {"interstitials": {"concentration": concentration, "count": number}}
+        )
+
+    def add_substitution_information(self, concentration: float, number: int) -> None:
+        """Add substitution information to the system.
+
+        Parameters
+        ----------
+        concentration : float
+            The concentration of substitutions.
+        number : int
+            The number of substitutions.
+
+        Returns
+        -------
+        None
+        """
+        if hasattr(self, "defects") is False:
+            self.defects = {}
+
+        self.defects.update(
+            {"substitutions": {"concentration": concentration, "count": number}}
+        )
+
+    def annotate_point_defects(self) -> None:
+        """Annotate defects in the crystal structure using the reference data file.
+
+        Returns
+        -------
+        None
+        """
+        if hasattr(self, "defects") is False:
+            self.defects = {}
+
+        defects = self.defects
+
+        vacancies = defects.get("vacancies", {"count": 0, "concentration": 0})
+        interstitials = defects.get("interstitials", {"count": 0, "concentration": 0})
+        substitutions = defects.get("substitutions", {"count": 0, "concentration": 0})
+        if vacancies["count"] > 0:
+            self.system.add_vacancy(
+                concentration=vacancies["concentration"], number=vacancies["count"]
+            )
+
+        if interstitials["count"] > 0:
+            self.system.add_triples_for_interstitial_impurities(
+                conc_of_impurities=interstitials["concentration"],
+                no_of_impurities=interstitials["count"],
+            )
+
+        if substitutions["count"] > 0:
+            self.system.add_triples_for_substitutional_impurities(
+                conc_of_impurities=substitutions["concentration"],
+                no_of_impurities=substitutions["count"],
+            )
 
     def identify_line_defects(self) -> tuple[list, list]:
         """Identify line defects in the crystal structure.
@@ -264,46 +365,6 @@ class AnnotateCrystal:
         orientations, angles = identify_grain_orientations(self.ovito_pipeline)
 
         return orientations, angles
-
-    def annotate_point_defects(
-        self, reference_data_file: str, ref_format: str, method: Optional[str] = None
-    ) -> None:
-        """Annotate defects in the crystal structure using the reference data file.
-
-        Parameters
-        ----------
-        reference_data_file : str
-            The name of the file to read
-        ref_format : str
-            The format of the file. If None, the format is guessed from the file extension
-        method : str
-            The method to use for defect identification
-
-        Returns
-        -------
-        None
-        """
-        defects = self.identify_point_defects(reference_data_file, ref_format, method)
-
-        vacancies = defects.get("vacancies", {"count": 0, "fraction": 0})
-        interstitials = defects.get("interstitials", {"count": 0, "fraction": 0})
-        substitutions = defects.get("substitutions", {"count": 0, "fraction": 0})
-        if vacancies["count"] > 0:
-            self.system.add_vacancy(
-                concentration=vacancies["fraction"], number=vacancies["count"]
-            )
-
-        if interstitials["count"] > 0:
-            self.system.add_triples_for_interstitial_impurities(
-                conc_of_impurities=interstitials["fraction"],
-                no_of_impurities=interstitials["count"],
-            )
-
-        if substitutions["count"] > 0:
-            self.system.add_triples_for_substitutional_impurities(
-                conc_of_impurities=substitutions["fraction"],
-                no_of_impurities=substitutions["count"],
-            )
 
     def write_to_file(self, filename: str, format: str = "ttl") -> None:
         """Write the annotated system to a file.
