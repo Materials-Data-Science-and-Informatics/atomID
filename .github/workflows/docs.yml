@@ -48,7 +48,7 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-
+      - run: poetry install --only docs
       - name: Check out or initialize gh-pages branch
         run: |
           if git fetch origin gh-pages:gh-pages
@@ -60,5 +60,5 @@ jobs:
             git checkout --orphan gh-pages
           fi
 
-      - run: poetry install --only docs
+
       - run: poetry run mkdocs gh-deploy --force
