@@ -61,5 +61,5 @@ jobs:
           fi
 
       - run: pip install mkdocs-material
-      - run: poetry install --with docs
+      - run: poetry install --only docs
       - run: mkdocs gh-deploy --force
