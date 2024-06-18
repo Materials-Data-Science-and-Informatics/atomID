@@ -28,7 +28,19 @@ class AnnotateCrystal:
         format: Optional[str] = None,
         **kwargs: dict[str, str],
     ) -> None:
-        """Initialize the AnnotateCrystal object."""
+        """Initialize the AnnotateCrystal object.
+
+        Parameters
+        ----------
+        data_file : str
+            The name of the file to read
+        format : str
+            The format of the file. If None, the format is guessed from the file extension
+
+        Returns
+        -------
+        None
+        """
         if data_file is not None and format is not None:
             self.read_crystal_structure_file(data_file, format, **kwargs)
 
@@ -43,6 +55,10 @@ class AnnotateCrystal:
             The name of the file to read
         format : str
             The format of the file. If None, the format is guessed from the file extension
+
+        Returns
+        -------
+        None
         """
         self.ase_crystal = ase_read(data_file, format=format, **kwargs)
         kg = ardf.KnowledgeGraph()
@@ -56,6 +72,25 @@ class AnnotateCrystal:
         self.kg = kg
         self.system = crystal_structure
 
+    def validate_parameters_for_crystal_annotation(self) -> None:
+        if hasattr(self, "lattice_constant") is False or self.lattice_constant is None:
+            self._raise_error(
+                "Lattice constants have not been set.",
+                "Please run the 'identify_crystal_structure' method first or"
+                "set the lattice constants manually.",
+            )
+
+        if hasattr(self, "crystal_type") is False or self.crystal_type is None:
+            self._raise_error(
+                "Crystal structure has not been set.",
+                "Please run the 'identify_crystal_structure' method first or"
+                "set the crystal structure manually.",
+            )
+
+    def _raise_error(self, error_message: str, suggestion: str) -> None:
+        full_message = f"\033[91mError: {error_message} {suggestion}\033[0m"
+        raise ValueError(full_message)
+
     def get_polyhedral_template_matching_data(self) -> DataCollection:
         """Get the polyhedral template matching data from the ovito pipeline.
 
@@ -66,7 +101,7 @@ class AnnotateCrystal:
 
         Returns
         -------
-        dict
+        ovito.data.DataCollection
             The polyhedral template matching data.
         """
         polyhedral_modifier = PolyhedralTemplateMatchingModifier(
@@ -90,11 +125,15 @@ class AnnotateCrystal:
         data = self.ovito_pipeline.compute()
         return data
 
-    def annotate_crystal_structure(self) -> None:
+    def identify_crystal_structure(self) -> None:
         """Identify and annotate the crystal structure.
 
-        This method identifies the crystal structure using Common Neighbour Analysis
+        This method identifies the crystal structure using polyhedral template matching
         and lattice constant using radial distribution function.
+
+        Returns
+        -------
+        None
         """
         # get crystal structure from polyhedral template matching
         structure_data = self.get_polyhedral_template_matching_data()
@@ -102,22 +141,65 @@ class AnnotateCrystal:
         structure_id, crystal_type = analyse_polyhedral_template_matching_data(
             structure_type_atoms
         )
+        self.crystal_type = crystal_type
 
         if crystal_type != "other":
             interatomic_distance = structure_data.particles["Interatomic Distance"][...]  # noqa
-            lattice_constants = find_lattice_parameter(
+            self.lattice_constant = find_lattice_parameter(
                 interatomic_distance, structure_type_atoms, int(structure_id)
             )
+        else:
+            # Warn user that the crystal structure could not be identified
+            # and set the lattice constant can not be determined
+            print("\033[91mCrystal structure could not be identified.\033[0m")
+            print("\033[91mLattice constant can not be determined.\033[0m")
+            self.lattice_constant = None
 
-            self.system = None
-            self.kg = ardf.KnowledgeGraph()
-            self.system = ardf.System.read.file(
-                self.ase_crystal,
-                format="ase",
-                graph=self.kg,
-                lattice=crystal_type,
-                lattice_constant=lattice_constants,
-            )
+    def set_lattice_constant(self, lattice_constant: float) -> None:
+        """Set the lattice constant.
+
+        Parameters
+        ----------
+        lattice_constant : float
+            The lattice constant.
+
+        Returns
+        -------
+        None
+        """
+        self.lattice_constant = lattice_constant
+
+    def set_crystal_structure(self, crystal_type: str) -> None:
+        """Set the crystal structure.
+
+        Parameters
+        ----------
+        crystal_type : str
+            The crystal structure.
+
+        Returns
+        -------
+        None
+        """
+        self.crystal_type = crystal_type
+
+    def annotate_crystal_structure(self) -> None:
+        """Annotate the crystal structure.
+
+        Returns
+        -------
+        None
+        """
+        self.validate_parameters_for_crystal_annotation()
+
+        self.kg = ardf.KnowledgeGraph()
+        self.system = ardf.System.read.file(
+            self.ase_crystal,
+            format="ase",
+            graph=self.kg,
+            lattice=self.crystal_type,
+            lattice_constant=self.lattice_constant,
+        )
 
     def identify_point_defects(
         self,
@@ -156,16 +238,29 @@ class AnnotateCrystal:
         return defects
 
     def identify_line_defects(self) -> tuple[list, list]:
-        """Identify line defects in the crystal structure."""
+        """Identify line defects in the crystal structure.
+
+        Returns
+        -------
+        tuple[list, list]
+            A tuple containing the burgers vectors and lengths of the dislocations.
+        """
         (burgers_vectors, lengths) = identify_dislocations(self.ovito_pipeline)
 
         if len(burgers_vectors) == 0:
+            print("\033[91mNo dislocations found.\033[0m")
             return None, None
 
         return burgers_vectors, lengths
 
     def identify_grains(self) -> tuple[list, list]:
-        """Identify grains in the crystal structure."""
+        """Identify grains in the crystal structure.
+
+        Returns
+        -------
+        tuple[list, list]
+            A tuple containing the orientations and angles of the grains.
+        """
         orientations, angles = identify_grain_orientations(self.ovito_pipeline)
 
         return orientations, angles
@@ -184,6 +279,9 @@ class AnnotateCrystal:
         method : str
             The method to use for defect identification
 
+        Returns
+        -------
+        None
         """
         defects = self.identify_point_defects(reference_data_file, ref_format, method)
 
@@ -216,5 +314,9 @@ class AnnotateCrystal:
             The name of the file to write
         format : str
             The format of the file. If None, the format is guessed from the file extension
+
+        Returns
+        -------
+        None
         """
         self.kg.write(filename, format=format)

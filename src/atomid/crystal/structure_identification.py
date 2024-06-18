@@ -61,7 +61,7 @@ def find_lattice_parameter(
 
     multiplier = {
         1: sqrt(2),
-        2: sqrt(2),
+        2: 1,
         3: sqrt(4 / 3),
         4: 4 / sqrt(3),
         5: 1,
