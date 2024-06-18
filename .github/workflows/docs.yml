@@ -32,6 +32,8 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
+      - name: Install poetry
+        run: pipx install poetry
       - uses: actions/checkout@v4
       - name: Configure Git Credentials
         run: |
@@ -47,18 +49,6 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
+      - run: poetry install --only docs
 
-
-      - name: Check out or initialize gh-pages branch
-        run: |
-          if git fetch origin gh-pages:gh-pages
-          then
-            echo "Found existing gh-pages branch."
-            git checkout gh-pages
-          else
-            echo "Creating new gh-pages branch"
-            git checkout --orphan gh-pages
-          fi
-
-      - run: pip install mkdocs-material
-      - run: mkdocs gh-deploy --force
+      - run: poetry run mkdocs gh-deploy --force
