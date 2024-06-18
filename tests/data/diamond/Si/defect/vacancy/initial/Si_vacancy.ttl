@@ -31,7 +31,7 @@ ns1:SimulationCellLength rdfs:subClassOf ns1:Length .
     ns1:hasElement <https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:27573> .
 
 <sample:c65bf5ee-757e-4f28-9047-b960addf6e24_CrystalStructure> a ns1:CrystalStructure ;
-    ns1:hasAltName "diamond"^^xsd:string ;
+    ns1:hasAltName "cubic diamond"^^xsd:string ;
     ns1:hasSpaceGroupNumber 227 ;
     ns1:hasSpaceGroupSymbol "Fd-3m"^^xsd:string ;
     ns1:hasUnitCell <sample:c65bf5ee-757e-4f28-9047-b960addf6e24_UnitCell> .
