@@ -1,70 +1,42 @@
-name: Docs
-
+name: ci
 on:
   push:
-    branches: [main, dev]
-    tags: ["v*.*.*"]
-  pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
-
+    branches:
+      - master
+      - main
+permissions:
+  contents: write
 jobs:
-  test-build-docs:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
-      - name: Install poetry
-        run: pipx install poetry
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-          cache: "poetry"
-
-      - name: Check that documentation builds without errors
+      - uses: actions/checkout@v4
+      - name: Configure Git Credentials
         run: |
-          poetry install --with docs
-          poetry run poe docs
-  docs:
-    # build + deploy documentation (only on push event for certain branches+tags)
-    needs: [test-build-docs]
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install poetry
-        run: pipx install poetry
-      - uses: actions/setup-python@v4
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
-          cache: "poetry"
+          python-version: 3.x
+      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - uses: actions/cache@v4
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
 
-      - name: Install project with mkdocs and plugins
-        run: poetry install --with docs
-
-      - name: Configure Git user (Github Actions Bot)
-        run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Check out or initialize gh-pages branch
         run: |
           if git fetch origin gh-pages:gh-pages
           then
             echo "Found existing gh-pages branch."
+            git checkout gh-pages
           else
-            echo "Creating new gh-pages branch and initializing mike."
-            poetry run mike deploy -u ${{ github.ref_name }} latest
-            poetry run mike set-default latest
+            echo "Creating new gh-pages branch"
+            git checkout --orphan gh-pages
           fi
 
-      - name: Build and deploy documentation to gh-pages
-        run: |
-          SET_LATEST=""
-          if [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+*$ ]]; then
-            # if a new release tag is pushed, mark the built documentation as 'latest'
-            SET_LATEST="latest"
-          fi
-          poetry run mike deploy -u --push ${{ github.ref_name }} $SET_LATEST
+      - run: pip install mkdocs-material
+      - run: mkdocs gh-deploy --force
