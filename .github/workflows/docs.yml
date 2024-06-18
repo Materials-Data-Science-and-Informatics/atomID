@@ -49,16 +49,5 @@ jobs:
           restore-keys: |
             mkdocs-material-
       - run: poetry install --only docs
-      - name: Check out or initialize gh-pages branch
-        run: |
-          if git fetch origin gh-pages:gh-pages
-          then
-            echo "Found existing gh-pages branch."
-            git checkout gh-pages
-          else
-            echo "Creating new gh-pages branch"
-            git checkout --orphan gh-pages
-          fi
-
 
       - run: poetry run mkdocs gh-deploy --force
