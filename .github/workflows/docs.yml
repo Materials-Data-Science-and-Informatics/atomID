@@ -1,12 +1,35 @@
 name: Docs
+
 on:
   push:
-    branches:
-      - main
+    branches: [main, dev]
+    tags: ["v*.*.*"]
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
 permissions:
   contents: write
+
 jobs:
+  test-build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "poetry"
+
+      - name: Check that documentation builds without errors
+        run: |
+          poetry install --with docs
+          poetry run poe docs
   deploy:
+    needs: [test-build-docs]
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
