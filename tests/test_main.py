@@ -71,14 +71,14 @@ class TestAnnotateSystemTest:
         annotate_crystal.read_crystal_structure_file(
             sample_crystal_file, format="vasp"
         )  # Adjust format if needed
-        defects = annotate_crystal.identify_point_defects(
+        annotate_crystal.identify_point_defects(
             reference_crystal_file, ref_format="vasp"
         )  # Adjust format if needed
 
-        assert isinstance(defects, dict)
-        assert "vacancies" in defects
-        assert "interstitials" in defects
-        assert "substitutions" in defects
+        assert isinstance(annotate_crystal.defects, dict)
+        assert "vacancies" in annotate_crystal.defects
+        assert "interstitials" in annotate_crystal.defects
+        assert "substitutions" in annotate_crystal.defects
 
     @pytest.mark.parametrize(
         "sample_crystal_file, reference_crystal_file", test_data_combinations
@@ -211,10 +211,10 @@ class TestAnnotateGrains:
         annotate_crystal.read_crystal_structure_file(grain_boundary_path, format="vasp")
         annotate_crystal.identify_crystal_structure()
         annotate_crystal.annotate_crystal_structure()
-        grains, angles = annotate_crystal.identify_grains()
+        annotate_crystal.identify_grains()
 
-        assert grains is not None
-        assert angles is not None
+        assert annotate_crystal.orientations is not None
+        assert annotate_crystal.angles is not None
 
 
 class TestAnnotateDislocations:
@@ -227,10 +227,10 @@ class TestAnnotateDislocations:
         annotate_crystal.read_crystal_structure_file(dislocation_path, format="cfg")
         annotate_crystal.identify_crystal_structure()
         annotate_crystal.annotate_crystal_structure()
-        burgers_vectors, lengths = annotate_crystal.identify_line_defects()
+        annotate_crystal.identify_line_defects()
 
-        assert burgers_vectors is not None
-        assert lengths is not None
+        assert annotate_crystal.burgers_vectors is not None
+        assert annotate_crystal.dislocation_lengths is not None
 
     def test_identify_dislocations_none(self) -> None:
         dislocation_path = "tests/data/fcc/Al/no_defect/initial/Al.poscar"
@@ -239,10 +239,25 @@ class TestAnnotateDislocations:
         annotate_crystal.read_crystal_structure_file(dislocation_path, format="vasp")
         annotate_crystal.identify_crystal_structure()
         annotate_crystal.annotate_crystal_structure()
-        burgers_vectors, lengths = annotate_crystal.identify_line_defects()
+        annotate_crystal.identify_line_defects()
 
-        assert burgers_vectors is None
-        assert lengths is None
+        assert not hasattr(annotate_crystal, "burgers_vectors")
+        assert not hasattr(annotate_crystal, "dislocation_lengths")
+
+    def test_add_dislocation_information(self) -> None:
+        dislocation_path = "tests/data/dislocation/Al_edge.cfg"
+
+        annotate_crystal = AnnotateCrystal()
+        annotate_crystal.read_crystal_structure_file(dislocation_path, format="cfg")
+        annotate_crystal.identify_crystal_structure()
+        annotate_crystal.annotate_crystal_structure()
+        annotate_crystal.identify_line_defects()
+        annotate_crystal.add_dislocation_information(
+            burgers_vectors=[[1, 0, 0]], lengths=[10]
+        )
+
+        assert annotate_crystal.dislocation_lengths[1] == 10
+        assert annotate_crystal.burgers_vectors[1] == [1, 0, 0]
 
 
 if __name__ == "__main__":
