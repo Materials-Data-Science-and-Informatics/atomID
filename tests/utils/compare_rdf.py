@@ -114,7 +114,6 @@ def handle_result_differences(
     results: list, original_object: URIRef, s: URIRef, p: URIRef
 ) -> str:
     """Evaluate and print differences in query results."""
-
     for row in results:
         try:
             if (
