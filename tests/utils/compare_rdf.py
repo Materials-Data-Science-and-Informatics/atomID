@@ -64,6 +64,7 @@ def compare_graphs(current_filepath: str, reference_filepath: str) -> tuple[bool
     substituted_graph.parse(data=filedata, format="turtle")
 
     in_both, in_first, in_second = graph_difference(substituted_graph, reference_graph)
+
     differences = handle_graph_differences(in_first, in_second)
 
     return len(differences) == 0, differences
@@ -90,7 +91,6 @@ def handle_graph_differences(in_first: Graph, in_second: Graph) -> list:
 
         query = f"SELECT ?object WHERE {{ <{subject}> <{predicate}> ?object .}}"
         results = in_second.query(query)
-
         if not results:
             compare_results.append(handle_no_matches(subject, predicate, in_second))
         else:

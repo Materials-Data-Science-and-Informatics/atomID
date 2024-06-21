@@ -148,6 +148,8 @@ class AnnotateCrystal:
             self.lattice_constant = find_lattice_parameter(
                 interatomic_distance, structure_type_atoms, int(structure_id)
             )
+            print(f"\033[92mCrystal structure: {crystal_type}\033[0m")
+            print(f"\033[92mLattice constant: {self.lattice_constant}\033[0m")
         else:
             # Warn user that the crystal structure could not be identified
             # and set the lattice constant can not be determined
@@ -207,7 +209,7 @@ class AnnotateCrystal:
         ref_format: str,
         method: Optional[str] = None,
         **kwargs: dict[str, str],
-    ) -> dict:
+    ) -> None:
         """Identify defects in the crystal structure using the reference data file.
 
         Parameters
@@ -240,8 +242,14 @@ class AnnotateCrystal:
             self.defects = dict()
 
         self.defects.update(defects)
-
-        return defects
+        # Print identified defects
+        print("\033[92mIdentified defects:\033[0m")
+        for defect, defect_info in defects.items():
+            if defect_info["count"] != 0:
+                print(
+                    f"\033[92m{defect}:\033[0m Count: {defect_info['count']} "
+                    f"Concentration: {defect_info['concentration']:.2f}"
+                )
 
     def add_vacancy_information(self, concentration: float, number: int) -> None:
         """Add vacancy information to the system.
@@ -338,7 +346,7 @@ class AnnotateCrystal:
                 no_of_impurities=substitutions["count"],
             )
 
-    def identify_line_defects(self) -> tuple[list, list]:
+    def identify_line_defects(self) -> None:
         """Identify line defects in the crystal structure.
 
         Returns
@@ -350,11 +358,41 @@ class AnnotateCrystal:
 
         if len(burgers_vectors) == 0:
             print("\033[91mNo dislocations found.\033[0m")
-            return None, None
+            return None
+        # Lengths to 4 decimal places
+        print(
+            "\033[92mDislocations found:\033[0m"
+            f"\nBurgers vectors: {burgers_vectors}"
+            f"\nLengths: {[round(length, 4) for length in lengths]}"
+        )
+        self.burgers_vectors = burgers_vectors
+        # round the lengths to 4 decimal places
+        self.dislocation_lengths = [round(length, 4) for length in lengths]
 
-        return burgers_vectors, lengths
+    def add_dislocation_information(self, burgers_vectors: list, lengths: list) -> None:
+        """Add dislocation information to the system.
 
-    def identify_grains(self) -> tuple[list, list]:
+        Parameters
+        ----------
+        burgers_vectors : list
+            A list of burgers vectors.
+        lengths : list
+            A list of dislocation lengths.
+
+        Returns
+        -------
+        None
+        """
+        # add to burgers vectors if not already present
+        if hasattr(self, "burgers_vectors") is False:
+            self.burgers_vectors = []
+        self.burgers_vectors.extend(burgers_vectors)
+        # add to dislocation lengths if not already present
+        if hasattr(self, "dislocation_lengths") is False:
+            self.dislocation_lengths = []
+        self.dislocation_lengths.extend(lengths)
+
+    def identify_grains(self) -> None:
         """Identify grains in the crystal structure.
 
         Returns
@@ -363,8 +401,14 @@ class AnnotateCrystal:
             A tuple containing the orientations and angles of the grains.
         """
         orientations, angles = identify_grain_orientations(self.ovito_pipeline)
-
-        return orientations, angles
+        self.orientations = orientations
+        self.angles = angles
+        # enumerate the orientations and angles
+        for i, (orientation, angle) in enumerate(zip(orientations, angles)):
+            print(
+                f"\033[92mGrain {i + 1}:\033[0m Orientation: {orientation}"
+                f"Angle: {round(angle, 4)}"
+            )
 
     def write_to_file(self, filename: str, format: str = "ttl") -> None:
         """Write the annotated system to a file.
