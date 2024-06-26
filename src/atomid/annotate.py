@@ -1,6 +1,6 @@
 """Annotate crystal class."""
 
-from typing import Optional
+from typing import Any, Optional
 
 import atomrdf as ardf
 from ase.io import read as ase_read
@@ -26,7 +26,8 @@ class AnnotateCrystal:
         self,
         data_file: Optional[str] = None,
         format: Optional[str] = None,
-        **kwargs: dict[str, str],
+        kg: Optional[ardf.KnowledgeGraph] = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize the AnnotateCrystal object.
 
@@ -41,11 +42,19 @@ class AnnotateCrystal:
         -------
         None
         """
-        if data_file is not None and format is not None:
-            self.read_crystal_structure_file(data_file, format, **kwargs)
+        if kg is None:
+            self.kg = ardf.KnowledgeGraph()
+        else:
+            self.kg = kg
+
+        if data_file is not None:
+            if format is not None:
+                self.read_crystal_structure_file(data_file, format, **kwargs)
+            else:
+                self.read_crystal_structure_file(data_file, **kwargs)
 
     def read_crystal_structure_file(
-        self, data_file: str, format: str, **kwargs: dict[str, str]
+        self, data_file: str, format: Optional[str] = None, **kwargs: dict[str, str]
     ) -> None:
         """Read the crystal structure file.
 
@@ -61,16 +70,8 @@ class AnnotateCrystal:
         None
         """
         self.ase_crystal = ase_read(data_file, format=format, **kwargs)
-        kg = ardf.KnowledgeGraph()
-
-        crystal_structure = ardf.System.read.file(
-            filename=self.ase_crystal, format="ase", graph=kg
-        )
 
         self.ovito_pipeline = import_file(data_file)
-
-        self.kg = kg
-        self.system = crystal_structure
 
     def validate_parameters_for_crystal_annotation(self) -> None:
         if hasattr(self, "lattice_constant") is False or self.lattice_constant is None:
@@ -125,7 +126,7 @@ class AnnotateCrystal:
         data = self.ovito_pipeline.compute()
         return data
 
-    def identify_crystal_structure(self) -> None:
+    def identify_crystal_structure(self, log: bool = True) -> None:
         """Identify and annotate the crystal structure.
 
         This method identifies the crystal structure using polyhedral template matching
@@ -148,8 +149,9 @@ class AnnotateCrystal:
             self.lattice_constant = find_lattice_parameter(
                 interatomic_distance, structure_type_atoms, int(structure_id)
             )
-            print(f"\033[92mCrystal structure: {crystal_type}\033[0m")
-            print(f"\033[92mLattice constant: {self.lattice_constant}\033[0m")
+            if log:
+                print(f"\033[92mCrystal structure: {crystal_type}\033[0m")
+                print(f"\033[92mLattice constant: {self.lattice_constant}\033[0m")
         else:
             # Warn user that the crystal structure could not be identified
             # and set the lattice constant can not be determined
@@ -193,8 +195,6 @@ class AnnotateCrystal:
         None
         """
         self.validate_parameters_for_crystal_annotation()
-
-        self.kg = ardf.KnowledgeGraph()
         self.system = ardf.System.read.file(
             self.ase_crystal,
             format="ase",
@@ -208,6 +208,7 @@ class AnnotateCrystal:
         reference_data_file: str,
         ref_format: str,
         method: Optional[str] = None,
+        log: bool = True,
         **kwargs: dict[str, str],
     ) -> None:
         """Identify defects in the crystal structure using the reference data file.
@@ -243,13 +244,15 @@ class AnnotateCrystal:
 
         self.defects.update(defects)
         # Print identified defects
-        print("\033[92mIdentified defects:\033[0m")
+        if log:
+            print("\033[92mIdentified defects:\033[0m")
         for defect, defect_info in defects.items():
             if defect_info["count"] != 0:
-                print(
-                    f"\033[92m{defect}:\033[0m Count: {defect_info['count']} "
-                    f"Concentration: {defect_info['concentration']:.2f}"
-                )
+                if log:
+                    print(
+                        f"\033[92m{defect}:\033[0m Count: {defect_info['count']} "
+                        f"Concentration: {defect_info['concentration']:.2f}"
+                    )
 
     def add_vacancy_information(self, concentration: float, number: int) -> None:
         """Add vacancy information to the system.
