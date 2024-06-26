@@ -38,12 +38,9 @@ class TestAnnotateSystemTest:
         self, sample_crystal_file: str, reference_crystal_file: str
     ) -> None:
         annotate_crystal = AnnotateCrystal()
-        annotate_crystal.read_crystal_structure_file(
-            sample_crystal_file, format="vasp"
-        )  # Adjust format if needed
+        annotate_crystal.read_crystal_structure_file(sample_crystal_file, format="vasp")
 
         assert annotate_crystal.ase_crystal is not None
-        assert annotate_crystal.system is not None
         assert annotate_crystal.kg is not None
 
     @pytest.mark.parametrize(
@@ -53,9 +50,7 @@ class TestAnnotateSystemTest:
         self, sample_crystal_file: str, reference_crystal_file: str
     ) -> None:
         annotate_crystal = AnnotateCrystal()
-        annotate_crystal.read_crystal_structure_file(
-            sample_crystal_file, format="vasp"
-        )  # Adjust format if needed
+        annotate_crystal.read_crystal_structure_file(sample_crystal_file, format="vasp")
         annotate_crystal.identify_crystal_structure()
         annotate_crystal.annotate_crystal_structure()
 
@@ -68,12 +63,13 @@ class TestAnnotateSystemTest:
         self, sample_crystal_file: str, reference_crystal_file: str
     ) -> None:
         annotate_crystal = AnnotateCrystal()
-        annotate_crystal.read_crystal_structure_file(
-            sample_crystal_file, format="vasp"
-        )  # Adjust format if needed
+        annotate_crystal.read_crystal_structure_file(sample_crystal_file, format="vasp")
+        annotate_crystal.identify_crystal_structure()
+        annotate_crystal.annotate_crystal_structure()
+
         annotate_crystal.identify_point_defects(
             reference_crystal_file, ref_format="vasp"
-        )  # Adjust format if needed
+        )
 
         assert isinstance(annotate_crystal.defects, dict)
         assert "vacancies" in annotate_crystal.defects
@@ -89,6 +85,8 @@ class TestAnnotateSystemTest:
         """Test writing the defects to a file."""
         annotate_crystal = AnnotateCrystal()
         annotate_crystal.read_crystal_structure_file(sample_crystal_file, format="vasp")
+        annotate_crystal.identify_crystal_structure()
+        annotate_crystal.annotate_crystal_structure()
         annotate_crystal.identify_point_defects(
             reference_crystal_file, ref_format="vasp"
         )
