@@ -152,3 +152,77 @@ class AnnotateCrystals:
                 "Manually annotate the crystal structure using the "
                 "set_crystal_structure method."
             )
+
+    def identify_point_defects_all_samples(
+        self,
+        reference_files: List[str],
+        reference_format_list: Optional[List[str]] = None,
+    ) -> None:
+        """Identify point defects in all samples.
+
+        Parameters
+        ----------
+        reference_files : List[str]
+            The list of reference files.
+        reference_format_list : List[str], optional
+            The list of reference file formats.
+
+
+        Returns
+        -------
+        None
+        """
+        print(self.crystals_dict)
+        for idx in self.crystals_dict:
+            print(idx)
+            self.identify_point_defects(
+                idx,
+                reference_files[idx - 1],
+                reference_format_list[idx - 1] if reference_format_list else None,
+            )
+
+    def identify_point_defects(
+        self, idx: int, reference_file: str, reference_format: Optional[str] = None
+    ) -> None:
+        """Identify point defects in a given sample.
+
+        Parameters
+        ----------
+        idx : int
+            The index of the sample.
+        reference_file : str
+            The reference file.
+        reference_format : str, optional
+            The format of the reference file.
+
+        Returns
+        -------
+        None
+        """
+        self.crystals_dict[idx]["system"].identify_point_defects(
+            reference_file, ref_format=reference_format
+        )
+
+    def annotate_point_defects_all_samples(self) -> None:
+        """Annotate point defects in all samples.
+
+        Returns
+        -------
+        None
+        """
+        for idx in self.crystals_dict:
+            self.annotate_point_defects(idx)
+
+    def annotate_point_defects(self, idx: int) -> None:
+        """Annotate point defects in a given sample.
+
+        Parameters
+        ----------
+        idx : int
+            The index of the sample.
+
+        Returns
+        -------
+        None
+        """
+        self.crystals_dict[idx]["system"].annotate_point_defects()
