@@ -104,3 +104,38 @@ class TestAnnotateCrystals:
 
         assert impurity_concentration_exists
         assert number_of_impurity_atoms_exists
+
+    def test_annotate_all_point_defects(
+        self, annotate_crystals: AnnotateCrystals
+    ) -> None:
+        reference_files = [
+            "tests/data/bcc/Fe/no_defect/initial/Fe.poscar",
+            "tests/data/fcc/Al/no_defect/initial/Al.poscar",
+        ]
+        annotate_crystals.annotate_all_crystal_structures()
+        annotate_crystals.identify_point_defects_all_samples(
+            reference_files, reference_format_list=None
+        )
+        annotate_crystals.annotate_point_defects_all_samples()
+
+        kg = annotate_crystals.kg
+        has_impurity_concentration = URIRef(
+            "http://purls.helmholtz-metadaten.de/podo/hasImpurityConcentration"
+        )
+        has_number_of_impurity_atoms = URIRef(
+            "http://purls.helmholtz-metadaten.de/podo/hasNumberOfImpurityAtoms"
+        )
+
+        impurity_concentration_exists = (
+            None,
+            has_impurity_concentration,
+            None,
+        ) in kg.graph
+        number_of_impurity_atoms_exists = (
+            None,
+            has_number_of_impurity_atoms,
+            None,
+        ) in kg.graph
+
+        assert impurity_concentration_exists
+        assert number_of_impurity_atoms_exists

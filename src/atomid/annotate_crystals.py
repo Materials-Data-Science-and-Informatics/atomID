@@ -154,7 +154,9 @@ class AnnotateCrystals:
             )
 
     def identify_point_defects_all_samples(
-        self, reference_files: List[str], reference_format_list: Optional[List[str]]
+        self,
+        reference_files: List[str],
+        reference_format_list: Optional[List[str]] = None,
     ) -> None:
         """Identify point defects in all samples.
 
@@ -170,7 +172,9 @@ class AnnotateCrystals:
         -------
         None
         """
+        print(self.crystals_dict)
         for idx in self.crystals_dict:
+            print(idx)
             self.identify_point_defects(
                 idx,
                 reference_files[idx - 1],
