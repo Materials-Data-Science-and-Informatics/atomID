@@ -115,7 +115,7 @@ class TestAnnotateSystemTest:
         annotate_crystal.write_to_file(f"{tmp_path}/annotated_output.ttl", "ttl")
 
         assert os.path.exists(f"{tmp_path}/annotated_output.ttl")
-
+        print(sample_crystal_file.replace("poscar", "ttl"))
         result, differences = compare_graphs(
             f"{tmp_path}/annotated_output.ttl",
             sample_crystal_file.replace("poscar", "ttl"),
