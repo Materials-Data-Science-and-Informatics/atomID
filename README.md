@@ -1,4 +1,5 @@
 # atomID
+[![Tests](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/ci.yml/badge.svg)](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/ci.yml)
 
 Welcome to the `atomID` package! This README will guide you through the initial steps required to start using the `AnnotateCrystal` class for annotating crystal structures and defects. Follow the steps outlined below to get started.
 
