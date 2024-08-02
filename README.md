@@ -1,7 +1,7 @@
 [![Continuous Integration](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/ci.yml/badge.svg)](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/ci.yml)
 [![Docs](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/docs.yml/badge.svg)](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/docs.yml)
 [![PyPI - Version](https://img.shields.io/pypi/v/atomid)](https://pypi.org/project/atomID/)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/atomid)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/atomid)](https://img.shields.io/pypi/v/atomid)](https://pypi.org/project/atomID/)
 
 # atomID
 
