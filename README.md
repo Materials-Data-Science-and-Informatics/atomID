@@ -7,6 +7,11 @@
 
 Welcome to the `atomID` package! This README will guide you through the initial steps required to start using the `AnnotateCrystal` class for annotating crystal structures and defects. Follow the steps outlined below to get started.
 
+## Overview
+
+"AtomID" is an open-source Python package designed to annotate crystal structure data, enhancing data standardisation and interoperability in the field of computational materials science.
+
+
 ## Key Features
 
 - **Multi-format Data Input**: Supports data import from multiple commonly used formats, such as CIF, POSCAR, and LAMMPS, ensuring compatibility across various modelling tools and workflows.
