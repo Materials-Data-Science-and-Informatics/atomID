@@ -1,11 +1,19 @@
+# atomID
+
 [![Continuous Integration](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/ci.yml/badge.svg)](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/ci.yml)
 [![Docs](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/docs.yml/badge.svg)](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/docs.yml)
 [![PyPI - Version](https://img.shields.io/pypi/v/atomid)](https://pypi.org/project/atomID/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/atomid)](https://img.shields.io/pypi/v/atomid)
 
-# atomID
-
 Welcome to the `atomID` package! This README will guide you through the initial steps required to start using the `AnnotateCrystal` class for annotating crystal structures and defects. Follow the steps outlined below to get started.
+
+## Key Features
+
+- **Multi-format Data Input**: Supports data import from multiple commonly used formats, such as CIF, POSCAR, and LAMMPS, ensuring compatibility across various modelling tools and workflows.
+- **Crystal Structure Identification**: Utilises Common Neighbour Analysis to accurately identify crystal structures within different lattices.
+- **Defect Detection and Characterisation**: Applies Wigner-Seitz analysis to detect and categorise various types of lattice defects.
+- **Defect Concentration Calculation**: Computes the concentration of different point defects.
+- **Knowledge Graph Creation**: Generates a knowledge graph for crystal structures using the Computational Material Sample Ontology (CMSO), which can be exported and stored in Turtle (TTL) format, enabling sharing and complex querying on the data.
 
 ## Installation
 
@@ -90,14 +98,14 @@ crystal.annotate_defects("path/to/your/reference_file.poscar", "vasp")
 crystal.write_to_file("Al_inter.ttl", "ttl")
 ```
 
-# Documentation
+## Documentation
 
-Detailed documentation for the `atomID` package can be found in [docs](https://github.com/Materials-Data-Science-and-Informatics/atomID/tree/main/docs) folder.
+Detailed documentation for the `atomID` package can be found in the [docs](https://github.com/Materials-Data-Science-and-Informatics/atomID/tree/main/docs) folder.
 
-# Contributing
+## Contributing
 
 Please refer to the [CONTRIBUTING GUIDE](https://github.com/Materials-Data-Science-and-Informatics/atomID/blob/main/docs/contributing.md) on contributing to the `atomID` package.
 
-# Contact
+## Contact
 
-For any queries or feedback, kindly create an issue on the [GitHub repository](https://github.com/Materials-Data-Science-and-Informatics/atomID)
+For any queries or feedback, kindly create an issue on the [GitHub repository](https://github.com/Materials-Data-Science-and-Informatics/atomID).
