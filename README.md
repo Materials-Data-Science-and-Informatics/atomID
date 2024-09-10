@@ -1,7 +1,7 @@
 # atomID
 
 [![Continuous Integration](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/ci.yml/badge.svg)](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/ci.yml)
-[![Docs](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/docs.yml/badge.svg)](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/docs.yml)
+[![Docs](https://github.com/Materials-Data-Science-and-Informatics/atomID/actions/workflows/docs.yml/badge.svg)](https://materials-data-science-and-informatics.github.io/atomID/)
 [![PyPI - Version](https://img.shields.io/pypi/v/atomid)](https://pypi.org/project/atomID/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/atomid)](https://img.shields.io/pypi/v/atomid)
 
@@ -109,7 +109,7 @@ Detailed documentation for the `atomID` package can be found in the [docs](https
 
 ## Contributing
 
-Please refer to the [CONTRIBUTING GUIDE](https://github.com/Materials-Data-Science-and-Informatics/atomID/blob/main/docs/contributing.md) on contributing to the `atomID` package.
+Please refer to the [CONTRIBUTING GUIDE](https://materials-data-science-and-informatics.github.io/atomID/contributing/) on contributing to the `atomID` package.
 
 ## Contact
 
