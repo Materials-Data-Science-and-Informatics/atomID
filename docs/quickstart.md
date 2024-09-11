@@ -2,14 +2,6 @@
 
 Welcome to the atomID package quickstart guide! This guide will help you get started with using the `AnnotateCrystal` class for annotating crystal structures and defects. Follow the steps below to begin.
 
-## Key Features
-
-- **Multi-format Data Input**: Supports data import from multiple commonly used formats, such as CIF, POSCAR, and LAMMPS, ensuring compatibility across various modelling tools and workflows.
-- **Crystal Structure Identification**: Utilises Common Neighbour Analysis to accurately identify crystal structures within different lattices.
-- **Defect Detection and Characterisation**: Applies Wigner-Seitz analysis to detect and categorise various types of lattice defects.
-- **Defect Concentration Calculation**: Computes the concentration of different point defects.
-- **Knowledge Graph Creation**: Generates a knowledge graph for crystal structures using the Computational Material Sample Ontology (CMSO), which can be exported and stored in Turtle (TTL) format, enabling sharing and complex querying on the data.
-
 ## Installation
 
 First, ensure you have the `atomID` package installed. You can install it via pip:
